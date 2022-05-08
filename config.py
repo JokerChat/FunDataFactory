@@ -14,7 +14,7 @@ class Config(object):
     PORT = "3306"
     PWD = "root"
     USER = "root"
-    DBNAME = "fun"
+    DBNAME = "datafactory"
 
     # 数据库配置
     SQLALCHEMY_DATABASE_URI: str = f"mysql+pymysql://{USER}:{PWD}@{HOST}:{PORT}/{DBNAME}"
@@ -33,3 +33,8 @@ class FilePath(object):
     if not os.path.isdir(LOG_FILE_PATH): os.mkdir(LOG_FILE_PATH)
 
     LOG_NAME = os.path.join(LOG_FILE_PATH, 'FunDataFactory.log')
+
+class Permission(object):
+    MEMBERS  = 0 # 普通用户
+    LEADER = 1  # 组长
+    ADMIN = 2  # 超管
