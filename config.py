@@ -19,6 +19,10 @@ class Config(object):
     # 数据库配置
     SQLALCHEMY_DATABASE_URI: str = f"mysql+pymysql://{USER}:{PWD}@{HOST}:{PORT}/{DBNAME}"
 
+    KEY = "funDataFactory" # md5 盐值
+
+
+
 class Text(object):
     """描述配置"""
     TITLE = "Fun数据工厂"
