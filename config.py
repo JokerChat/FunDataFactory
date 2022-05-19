@@ -38,7 +38,19 @@ class FilePath(object):
 
     LOG_NAME = os.path.join(LOG_FILE_PATH, 'FunDataFactory.log')
 
+    APP_PATH = os.path.join(BASE_DIR, "app") # app 路径
+
+    CURD_PATH = os.path.join(APP_PATH, "curd")  # dao路径
+
 class Permission(object):
     MEMBERS  = 0 # 普通用户
     LEADER = 1  # 组长
     ADMIN = 2  # 超管
+
+HTTP_MSG_MAP = {
+    404 : '请求路径找不到',
+    405 : '请求方法不支持',
+    408 : '请求超时',
+    500 : '服务器内部错误',
+    302 : '请求方法不支持'
+}
