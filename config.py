@@ -19,8 +19,9 @@ class Config(object):
     # 数据库配置
     SQLALCHEMY_DATABASE_URI: str = f"mysql+pymysql://{USER}:{PWD}@{HOST}:{PORT}/{DBNAME}"
 
-    KEY = "funDataFactory" # md5 盐值
+    KEY = "funDataFactory" # md5 盐值 / token key
 
+    EXPIRED_HOUR = 12 # token过期时长
 
 
 class Text(object):

@@ -5,11 +5,18 @@
 
 from pydantic import BaseModel
 from typing import Any
+from datetime import datetime
+
 
 class ResponseDto(BaseModel):
     code: int = 200
     msg: str = '请求成功'
     data: Any = None
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
+        }
 
 class ToolsSchemas(object):
 
