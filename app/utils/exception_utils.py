@@ -12,6 +12,16 @@ class NormalException(HTTPException):
     def __init__(self, detail: Any = None) -> None:
         super().__init__(status_code=200, detail=detail)
 
+# 用户登录态
+class AuthException(HTTPException):
+    def __init__(self, detail: Any = None) -> None:
+        super().__init__(status_code=200, detail=detail)
+
+# 用户权限
+class PermissionException(HTTPException):
+    def __init__(self, detail: Any = None) -> None:
+        super().__init__(status_code=200, detail=detail)
+
 
 
 # 捕获异常装饰器
@@ -22,7 +32,7 @@ def record_log(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            # 获取函数名成
+            # 获取函数名
             func_name = func.__name__
             import traceback
             err = traceback.format_exc()

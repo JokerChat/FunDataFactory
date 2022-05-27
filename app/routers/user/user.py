@@ -9,7 +9,9 @@ from app.routers.user.user_schema import RegisterUserBody, LoginUserBody, LoginR
 from app.curd.user.UserDao import UserDao
 from app.utils.exception_utils import NormalException
 from app.models.base import ResponseDto
-from app.utils.auth_utils import UserToken
+from app.utils.auth_utils import UserToken, Auth
+from typing import Union
+from fastapi import Depends
 
 
 router = APIRouter()
@@ -35,5 +37,13 @@ def login(data: LoginUserBody):
         token = UserToken.get_token(json.loads(user_data))
         setattr(user, 'token', token)
         return LoginResDto(data=user)
+    except Exception as e:
+        raise NormalException(str(e))
+
+
+@router.get("/list", name='用户列表', response_model=ResponseDto)
+def info_list(page: int = 1, limit: int = 10, _: dict= Depends(Auth())):
+    try:
+        return ResponseDto(msg='请求成功')
     except Exception as e:
         raise NormalException(str(e))

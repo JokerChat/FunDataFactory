@@ -11,7 +11,7 @@ from starlette.types import Message
 from fastapi.exceptions import RequestValidationError
 from app.models.base import ResponseDto
 from fastapi.responses import JSONResponse
-from app.utils.exception_utils import NormalException
+from app.utils.exception_utils import NormalException, AuthException, PermissionException
 from app.utils.logger import Log
 from app.routers import routers
 
@@ -62,6 +62,17 @@ async def unexpected_exception_error(request: Request, exc: NormalException):
     res = ResponseDto(code=110, msg=exc.detail)
     return JSONResponse(content=res.dict())
 
+# 自定义权限异常
+@fun.exception_handler(PermissionException)
+async def unexpected_exception_error(request: Request, exc: PermissionException):
+    res = ResponseDto(code=403, msg=HTTP_MSG_MAP.get(exc.status_code, exc.detail))
+    return JSONResponse(content=res.dict())
+
+# 自定义用户登录态异常
+@fun.exception_handler(AuthException)
+async def unexpected_exception_error(request: Request, exc: AuthException):
+    res = ResponseDto(code=401, msg=HTTP_MSG_MAP.get(exc.status_code, exc.detail))
+    return JSONResponse(content=res.dict())
 
 # 全局捕获异常
 @fun.middleware("http")
