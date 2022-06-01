@@ -16,16 +16,16 @@ from fastapi import Depends
 
 router = APIRouter()
 
-@router.post('/register', name='用户注册', description='用户注册', response_model=ResponseDto)
+@router.post("/register", name="用户注册", description="用户注册", response_model=ResponseDto)
 def register(data: RegisterUserBody):
     try:
         UserDao.register_user(**data.dict())
-        return ResponseDto(msg='注册成功')
+        return ResponseDto(msg="注册成功")
     except Exception as e:
         raise NormalException(str(e))
 
 
-@router.post('/login', name='用户登录', description='用户登录', response_model=LoginResDto)
+@router.post("/login", name="用户登录", description="用户登录", response_model=LoginResDto)
 def login(data: LoginUserBody):
     try:
         user = UserDao.user_login(data)
@@ -41,9 +41,18 @@ def login(data: LoginUserBody):
         raise NormalException(str(e))
 
 
-@router.get("/list", name='用户列表', response_model=ResponseDto)
+@router.get("/list", name="用户列表", response_model=ResponseDto)
 def info_list(page: int = 1, limit: int = 10, _: dict= Depends(Auth())):
     try:
         return ResponseDto(msg='请求成功')
+    except Exception as e:
+        raise NormalException(str(e))
+
+
+@router.get("/logout",name="退出登录", description="退出登录", response_model=ResponseDto)
+def logout(_: dict= Depends(Auth())):
+    try:
+        # todo 退出登录删除清空redis token数据
+        return ResponseDto(msg="退出成功")
     except Exception as e:
         raise NormalException(str(e))

@@ -8,12 +8,14 @@ from fastapi import FastAPI, Request
 from config import Text, HTTP_MSG_MAP
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.types import Message
+from starlette.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from app.models.base import ResponseDto
 from fastapi.responses import JSONResponse
 from app.utils.exception_utils import NormalException, AuthException, PermissionException
 from app.utils.logger import Log
 from app.routers import routers
+
 
 
 fun = FastAPI(title=Text.TITLE, version=Text.VERSION, description=Text.DESCRIPTION)
@@ -100,3 +102,18 @@ async def errors_handling(request: Request, call_next):
         Log().error(log_msg)
         res = ResponseDto(code=500, msg=str(exc.args[0]))
         return JSONResponse(content=res.dict())
+
+
+#注册跨域
+# 利用CORSMiddleware中间件来实现CORS
+# allow_origins：允许跨域请求的域名列表
+# allow_methods：允许跨域请求的HTTP方法列表
+# allow_headers：跨域请求支持的HTTP头信息列表
+# allow_credentials：表示在跨域请求时是否支持cookie，True为支持
+fun.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )

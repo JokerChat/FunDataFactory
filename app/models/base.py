@@ -4,14 +4,14 @@
 # @File : base.py
 
 from pydantic import BaseModel
-from typing import Any
+from typing import Union
 from datetime import datetime
 
 
 class ResponseDto(BaseModel):
     code: int = 200
     msg: str = '请求成功'
-    data: Any = None
+    data: Union[dict, list, None] = None
 
     class Config:
         json_encoders = {
