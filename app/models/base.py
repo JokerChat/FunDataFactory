@@ -18,6 +18,10 @@ class ResponseDto(BaseModel):
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
         }
 
+class ListDto(BaseModel):
+    total: int = 0
+    lists: list = []
+
 class ToolsSchemas(object):
 
     @staticmethod
