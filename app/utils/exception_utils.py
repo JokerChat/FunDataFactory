@@ -32,12 +32,15 @@ def record_log(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            # 获取函数名
-            func_name = func.__name__
-            import traceback
-            err = traceback.format_exc()
-            # 日志输出详细报错信息
-            cls.log.error(f"{func_name}失败: {err}")
-            raise Exception(str(e))
+            # 如果不是主动抛出的异常就记录详细的日志
+            if not isinstance(e, NormalException):
+                # 获取函数名
+                func_name = func.__name__
+                import traceback
+                err = traceback.format_exc()
+                # 日志输出详细报错信息
+                cls.log.error(f"{func_name}失败: {err}")
+                raise Exception(str(e))
+            return func(*args, **kwargs)
     return wrapper
 

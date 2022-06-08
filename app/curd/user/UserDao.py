@@ -12,7 +12,7 @@ from app.utils.exception_utils import record_log
 from app.routers.user.user_schema import LoginUserBody, UpdateUserBody
 from datetime import datetime
 from app.utils.db_utils import DbUtils
-
+from app.utils.exception_utils import NormalException
 
 class UserDao(object):
 
@@ -32,7 +32,7 @@ class UserDao(object):
             # 先查询用户名或邮箱号是否重复
             users = session.query(DataFactoryUser).filter(or_(DataFactoryUser.username == username, DataFactoryUser.email == email)).first()
             if users:
-                raise Exception('用户名或邮箱号重复')
+                raise NormalException("用户名或邮箱号重复")
             # 统计用户表的用户数
             count = session.query(func.count(DataFactoryUser.id)).group_by(DataFactoryUser.id).count()
             user = DataFactoryUser(username, name, password, email)
@@ -53,10 +53,10 @@ class UserDao(object):
         with Session() as session:
             user = session.query(DataFactoryUser).filter(DataFactoryUser.username == data.username, DataFactoryUser.password == data.password).first()
             if user is None:
-                raise Exception("用户名或密码错误")
+                raise NormalException("用户名或密码错误")
             if user.is_valid:
                 # is_valid == true, 说明被冻结了
-                raise Exception("对不起, 你的账号已被冻结, 请联系管理员处理")
+                raise NormalException("对不起, 你的账号已被冻结, 请联系管理员处理")
             user.last_login_time = datetime.now()
             session.commit()
             # 进行对象刷新，更新对象，让对象过期，从而在下次访问时重新加载
@@ -93,7 +93,7 @@ class UserDao(object):
         with Session() as session:
             user = session.query(DataFactoryUser).filter(DataFactoryUser.id == data.id).first()
             if user is None:
-                raise Exception("用户不存在")
+                raise NormalException("用户不存在")
             # not_null=True 只有非空字段才更新数据
-            DbUtils.update_model(user, data.dict(), user_data)
+            DbUtils.update_model(user, data.dict(), user_data, not_null=True)
             session.commit()

@@ -3,7 +3,6 @@
 # @Author : junjie
 # @File : db_utils.py
 from datetime import datetime
-from typing import Any
 class DbUtils(object):
 
     @staticmethod
@@ -17,7 +16,7 @@ class DbUtils(object):
         """
         for var, value in source.items():
             if not_null:
-                if value:
+                if value is not None:
                     setattr(dist, var, value)
             else:
                 setattr(dist, var, value)
