@@ -3,3 +3,4 @@ fastapi==0.75.2
 SQLAlchemy==1.4.23
 email-validator==1.2.1
 pyjwt==2.1.0
+pycrypto==2.6.1

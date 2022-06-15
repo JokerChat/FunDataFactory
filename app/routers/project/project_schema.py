@@ -4,10 +4,10 @@
 # @File : project_schema.py
 
 from pydantic import BaseModel, validator, Field
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 from app.models.base import ToolsSchemas
 from datetime import datetime
-from app.models.base import ResponseDto
+from app.models.base import ResponseDto, ListDto
 
 
 
@@ -39,8 +39,16 @@ class AddProject(BaseModel):
     def check_pwd(cls, v, values, **kwargs):
         if 'pull_type' in values and values['pull_type'] == 0:
             v = ToolsSchemas.not_empty(v)
-            return v
+            from app.utils.aes_utils import AesUtils
+            return AesUtils.encrypt(v)
         return v
+
+class EditProject(AddProject):
+    id : int=Field(..., title="项目id", description="主键id")
+
+    @validator('id')
+    def id_not_empty(cls, v):
+        return ToolsSchemas.not_empty(v)
 
 
 class ProjectDto(BaseModel):
@@ -61,7 +69,7 @@ class ProjectDto(BaseModel):
     del_flag: int
     create_code: int
     create_name: str
-    update_code: str = None
+    update_code: int = None
     update_name: str = None
 
     class Config:
@@ -72,3 +80,13 @@ class ProjectDto(BaseModel):
 
 class ProjectResDto(ResponseDto):
     data: ProjectDto
+
+class ProjectList(ListDto):
+    lists: List[ProjectDto]
+
+class ProjectListResDto(ResponseDto):
+    data: ProjectList
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
+        }
