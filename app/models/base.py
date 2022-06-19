@@ -40,9 +40,9 @@ class FunBaseModel(Base):
     create_time = Column(DATETIME, nullable=False, comment="创建时间")
     update_time = Column(DATETIME, onupdate=func.now(), nullable=False, comment="更新时间")
     del_flag = Column(SMALLINT, default=0, nullable=False, comment="0: 未删除 1: 已删除")
-    create_code = Column(String(20), nullable=True, comment="创建人编码")
+    create_code = Column(INT, nullable=True, comment="创建人id")
     create_name = Column(String(20), nullable=True, comment="创建人")
-    update_code = Column(String(20), nullable=True, comment="更新人编码")
+    update_code = Column(INT, nullable=True, comment="更新人id")
     update_name = Column(String(20), nullable=True, comment="更新人")
     #设置为True，代表为基类，不会被创建为表
     __abstract__ = True

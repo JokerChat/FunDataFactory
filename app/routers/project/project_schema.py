@@ -14,7 +14,7 @@ from app.models.base import ResponseDto, ListDto
 class AddProject(BaseModel):
     project_name: str = Field(..., title="项目名称", description="必传")
     description: str = Field(None, title="项目描述", description="非必传")
-    owner: str = Field(..., title="项目负责人", description="必传")
+    owner: int = Field(..., title="项目负责人", description="必传")
     directory: str = Field(..., title="脚本目录", description="必传")
     private: bool = Field(..., title="是否私有", description="必传")
     pull_type: Literal[0, 1] = Field(..., title="拉取项目形式", description="必传")
@@ -56,7 +56,7 @@ class ProjectDto(BaseModel):
     project_name: str
     description: str = None
     directory: str
-    owner: str
+    owner: int
     private: bool
     pull_type: int
     git_project: str
@@ -77,9 +77,6 @@ class ProjectDto(BaseModel):
         json_encoders = {
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
         }
-
-class ProjectResDto(ResponseDto):
-    data: ProjectDto
 
 class ProjectList(ListDto):
     lists: List[ProjectDto]

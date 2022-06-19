@@ -6,6 +6,7 @@
 from sqlalchemy import Column, String, UniqueConstraint, BOOLEAN, SMALLINT
 from app.models.base import FunBaseModel
 from app.routers.project.project_schema import AddProject
+from sqlalchemy import INT
 
 class DataFactoryProject(FunBaseModel):
     """
@@ -18,7 +19,7 @@ class DataFactoryProject(FunBaseModel):
     project_name = Column(String(64), nullable=False, comment="项目名称")
     description = Column(String(64), nullable=True, comment="项目描述")
     directory = Column(String(64), nullable=False, comment="脚本目录")
-    owner = Column(String(32), nullable=False, comment="项目负责人")
+    owner = Column(INT, nullable=False, comment="项目负责人")
     private = Column(BOOLEAN, nullable=False, default=False, comment="是否私有")
     pull_type = Column(SMALLINT, default=0, nullable=False, comment="拉取方式, 0: http 1: ssh")
     git_project = Column(String(64), nullable=False, comment="git项目名")

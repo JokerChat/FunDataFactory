@@ -21,7 +21,7 @@ class ProjectDao(object):
 
     @classmethod
     @record_log
-    def insert_project(cls, form: AddProject, user: dict) -> DataFactoryProject:
+    def insert_project(cls, form: AddProject, user: dict) -> None:
         """
         新增项目
         :param form: 新增项目模型
@@ -29,8 +29,7 @@ class ProjectDao(object):
         :return:
         """
         with Session() as session:
-            session.expire_on_commit = False
-            user_query = session.query(DataFactoryUser.username).filter( DataFactoryUser.username == form.owner).first()
+            user_query = session.query(DataFactoryUser.username).filter( DataFactoryUser.id == form.owner).first()
             if user_query is None:
                 raise NormalException("用户不存在！！！")
             project = session.query(DataFactoryProject).filter( or_(DataFactoryProject.project_name == form.project_name, DataFactoryProject.git_project == form.git_project),
@@ -40,8 +39,6 @@ class ProjectDao(object):
             projects = DataFactoryProject(form, user)
             session.add(projects)
             session.commit()
-            session.expunge(projects)
-            return projects
 
     @classmethod
     @record_log
