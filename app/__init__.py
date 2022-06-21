@@ -45,8 +45,12 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @fun.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     message = ""
+    data = {}
+    fields = exc.raw_errors[0].exc.model.__dict__.get('__fields__')
+    for i in fields.keys():
+        data[i] = fields.get(i).field_info.title
     for error in exc.errors():
-        message += str(error.get('loc')[-1]) + ":" + str(error.get("msg"))+","
+        message += data.get(str(error.get('loc')[-1])) + ":" + str(error.get("msg"))+","
     res = ResponseDto(code=101, msg=f"请求参数非法! {message[:-1]}")
     return JSONResponse(content=res.dict())
 
