@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from app.utils.exception_utils import NormalException, AuthException, PermissionException
 from app.utils.logger import Log
 from app.routers import routers
+from pydantic import ValidationError
 
 
 
@@ -43,14 +44,19 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 # 自定义参数校验异常处理器
 @fun.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, err: RequestValidationError):
     message = ""
     data = {}
-    fields = exc.raw_errors[0].exc.model.__dict__.get('__fields__')
-    for i in fields.keys():
-        data[i] = fields.get(i).field_info.title
-    for error in exc.errors():
-        message += data.get(str(error.get('loc')[-1])) + ":" + str(error.get("msg"))+","
+    for raw_error in err.raw_errors:
+        if isinstance(raw_error.exc, ValidationError):
+            exc = raw_error.exc
+            if hasattr(exc, 'model'):
+                fields = exc.model.__dict__.get('__fields__')
+                for field_key in fields.keys():
+                    data[field_key] = fields.get(field_key).field_info.title
+    for error in err.errors():
+        field = str(error.get('loc')[-1])
+        message += data.get(field, field) + ":" + str(error.get("msg"))+","
     res = ResponseDto(code=101, msg=f"请求参数非法! {message[:-1]}")
     return JSONResponse(content=res.dict())
 

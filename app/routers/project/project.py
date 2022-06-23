@@ -25,7 +25,7 @@ def insert_project(body: AddProject, user= Depends(Auth(Permission.LEADER))):
         raise NormalException(str(e))
 
 @router.post("/update", name="编辑项目", response_model=ResponseDto)
-def update_project(body: EditProject, user= Depends(Auth(Permission.LEADER))):
+def update_project(body: EditProject, user= Depends(Auth())):
     try:
         ProjectDao.update_project(body, user)
         return ResponseDto(msg="编辑成功")
@@ -34,7 +34,7 @@ def update_project(body: EditProject, user= Depends(Auth(Permission.LEADER))):
 
 
 @router.get("/delete", name="删除项目", response_model=ResponseDto)
-def delete_project(id: int, user= Depends(Auth(Permission.LEADER))):
+def delete_project(id: int, user= Depends(Auth())):
     try:
         # 暂时用不到，用_占坑，后续加入后置操作
         _ = ProjectDao.delete_project(id, user)
@@ -43,9 +43,9 @@ def delete_project(id: int, user= Depends(Auth(Permission.LEADER))):
         raise NormalException(str(e))
 
 @router.get("/list", name="项目列表", response_model=ProjectListResDto)
-def get_project_infos(page: int=1, limit: int=10, search=None, _= Depends(Auth())):
+def get_project_infos(page: int=1, limit: int=10, search=None, user= Depends(Auth())):
     try:
-        total, project_infos= ProjectDao.list_project(page, limit, search)
+        total, project_infos= ProjectDao.list_project(user, page, limit, search)
         return ProjectListResDto(data=dict(total=total, lists=project_infos))
     except Exception as e:
         raise NormalException(str(e))
@@ -78,9 +78,27 @@ def delete_project_role(id, user= Depends(Auth())):
 
 
 @router.get("/role/list", name="获取项目权限成员列表", response_model=RoleListResDto)
-def project_role_list(project_id: int, page: int=1, limit: int=10, search=None, _= Depends(Auth())):
+def project_role_list(project_id: int, page: int=1, limit: int=10, search=None, user= Depends(Auth())):
     try:
-        roles, count = ProjectRoleDao.project_role_list(project_id, page, limit, search)
+        roles, count = ProjectRoleDao.project_role_list(user, project_id, page, limit, search)
         return RoleListResDto(data=dict(total=count, lists=roles))
+    except Exception as e:
+        raise NormalException(str(e))
+
+
+@router.get("/read", name="判断用户是否有项目查看权限", response_model=ResponseDto)
+def read_project(id: int, user = Depends(Auth())):
+    try:
+        ProjectRoleDao.read_permission(id, user)
+        return ResponseDto()
+    except Exception as e:
+        raise NormalException(str(e))
+
+
+@router.get("/operation", name="判断用户是否有项目操作权限")
+def operation_project(id: int, user = Depends(Auth())):
+    try:
+        ProjectRoleDao.operation_permission(id, user)
+        return ResponseDto()
     except Exception as e:
         raise NormalException(str(e))

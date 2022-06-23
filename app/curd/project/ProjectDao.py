@@ -12,6 +12,8 @@ from app.utils.logger import Log
 from app.utils.exception_utils import record_log
 from app.utils.exception_utils import NormalException
 from app.utils.db_utils import DbUtils
+from app.curd.project_role.ProjectRoleDao import ProjectRoleDao
+from config import Permission
 
 
 
@@ -50,6 +52,7 @@ class ProjectDao(object):
         :return:
         """
         with Session() as session:
+            ProjectRoleDao.operation_permission(data.id, user)
             project = session.query(DataFactoryProject).filter(DataFactoryProject.id == data.id,
                                                                DataFactoryProject.del_flag == 0).first()
             if project is None: raise NormalException("项目不存在")
@@ -78,6 +81,7 @@ class ProjectDao(object):
         :return:
         """
         with Session() as session:
+            ProjectRoleDao.operation_permission(id, user)
             project = session.query(DataFactoryProject).filter(DataFactoryProject.id == id,
                                                                DataFactoryProject.del_flag == 0).first()
             if project is None: raise NormalException("项目不存在")
@@ -88,19 +92,33 @@ class ProjectDao(object):
 
     @classmethod
     @record_log
-    def list_project(cls, page: int=1, size: int=10, search: str=None) ->(int, DataFactoryProject):
+    def list_project(cls, user:dict, page: int=1, size: int=10, search: str=None) ->(int, DataFactoryProject):
         """
         获取项目列表
+        :param user: 用户数据
         :param page: 页码
         :param size: 大小
         :param search: 搜索内容
         :return:
         """
         with Session() as session:
-            filter_list = [DataFactoryProject.del_flag == 0]
+            filter_list = [DataFactoryProject.del_flag == 0, *cls.user_all_projects(user)]
             if search:
                 filter_list.append(DataFactoryProject.project_name.like(f"%{search}%"))
             project = session.query(DataFactoryProject).filter(*filter_list)
             project_infos = project.order_by(desc(DataFactoryProject.update_time)).limit(size).offset((page - 1) * size).all()
             total = project.count()
         return total, project_infos
+
+
+    @classmethod
+    def user_all_projects(cls, user):
+        filter_list = []
+        # 如果不是管理员角色
+        if user['role'] != Permission.ADMIN:
+            # 找出用户权限范围内的所有项目
+            project_ids = ProjectRoleDao.project_by_user(user)
+            # 公开的项目 或者 权限范围内的项目 或者 项目负责人的项目
+            filter_list.append(or_(DataFactoryProject.id.in_(project_ids), DataFactoryProject.owner == user['id'],
+                                   DataFactoryProject.private == False))
+        return filter_list
