@@ -3,7 +3,7 @@
 # @Author : junjie
 # @File : project.py
 
-
+import os
 from fastapi import APIRouter, Depends
 from app.curd.project.ProjectDao import ProjectDao
 from app.curd.project_role.ProjectRoleDao import ProjectRoleDao
@@ -12,7 +12,9 @@ from app.routers.project.project_role_schema import AddProjectRole, EditProjectR
 from app.models.base import ResponseDto
 from app.utils.auth_utils import Auth
 from app.utils.exception_utils import NormalException
-from config import Permission
+from config import Permission, FilePath
+from app.core.git import Git
+from app.utils.aes_utils import AesUtils
 
 router = APIRouter()
 
@@ -95,10 +97,27 @@ def read_project(id: int, user = Depends(Auth())):
         raise NormalException(str(e))
 
 
-@router.get("/operation", name="判断用户是否有项目操作权限")
+@router.get("/operation", name="判断用户是否有项目操作权限", response_model=ResponseDto)
 def operation_project(id: int, user = Depends(Auth())):
     try:
         ProjectRoleDao.operation_permission(id, user)
         return ResponseDto()
+    except Exception as e:
+        raise NormalException(str(e))
+
+
+@router.get('/init', name="初始化项目", response_model=ResponseDto)
+def init_project(id: int, user= Depends(Auth())):
+    try:
+        project = ProjectDao.project_detail(id, user)
+        project_path = os.path.join(FilePath.BASE_DIR, project.git_project)
+        if os.path.isdir(project_path):
+            raise Exception("项目已存在, 请执行刷新项目！")
+        # 拉取项目
+        if project.pull_type == 0:
+            Git.git_clone_http(project.git_branch, project.git_url, project.git_account, AesUtils.decrypt(project.git_password))
+        else:
+            Git.git_clone_ssh(project.git_branch, project.git_url)
+        return ResponseDto(msg = "初始化成功")
     except Exception as e:
         raise NormalException(str(e))

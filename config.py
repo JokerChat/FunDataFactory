@@ -44,7 +44,11 @@ class FilePath(object):
 
     APP_PATH = os.path.join(BASE_DIR, "app") # app 路径
 
-    CURD_PATH = os.path.join(APP_PATH, "curd")  # dao路径
+    CURD_PATH = os.path.join(APP_PATH, "curd")  # curd路径
+
+    RSA_PUB_KEY = os.path.join(BASE_DIR, 'rsa_pub_key')
+
+    RSA_PRI_KEY = os.path.join(BASE_DIR, 'rsa_pri_key')
 
 class Permission(object):
     MEMBERS  = 0 # 普通用户

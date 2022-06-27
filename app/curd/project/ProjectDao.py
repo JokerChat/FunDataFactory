@@ -122,3 +122,15 @@ class ProjectDao(object):
             filter_list.append(or_(DataFactoryProject.id.in_(project_ids), DataFactoryProject.owner == user['id'],
                                    DataFactoryProject.private == False))
         return filter_list
+
+    @classmethod
+    @record_log
+    def project_detail(cls, id: int, user: dict) -> DataFactoryProject:
+        """获取项目详情"""
+        with Session() as session:
+            ProjectRoleDao.read_permission(id, user)
+            project = session.query(DataFactoryProject).filter(DataFactoryProject.id == id,
+                                                               DataFactoryProject.del_flag == 0).first()
+            if project is None:
+                raise NormalException("项目不存在")
+            return project
