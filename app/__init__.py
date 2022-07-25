@@ -2,128 +2,88 @@
 # @Time : 2022/5/3 08:56 
 # @Author : junjie
 # @File : __init__.py
-
 import json
-from fastapi import FastAPI, Request
-from config import Text, HTTP_MSG_MAP
+from fastapi import FastAPI, Depends, Request
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.types import Message
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from app.models.base import ResponseDto
-from fastapi.responses import JSONResponse
-from app.utils.exception_utils import NormalException, AuthException, PermissionException
-from app.utils.logger import Log
 from app.routers import routers
-from pydantic import ValidationError
+from app.commons.exceptions.expention_handler import (
+    http_exception_handler,
+    role_exception_handler,
+    auth_exception_handler,
+    validation_exception_handler,
+    business_exception_handler, global_exception_handler)
+from app.commons.exceptions.global_exception import BusinessException, AuthException, PermissionException
+from app.middlewares.middlewares import AuthMiddleware, ExceptionMiddleware
+from app.commons.utils.auth_utils import request_context
+from config import LOGGING_CONF
+from config import Text
+from loguru import logger
+from app.constants import constants
 
 
 
 fun = FastAPI(title=Text.TITLE, version=Text.VERSION, description=Text.DESCRIPTION)
 
-#注册路由
-for item in routers.data:
-    fun.include_router(item[0], prefix=item[1], tags=item[2])
-
-async def set_body(request: Request, body: bytes):
-    async def receive() -> Message:
-        return {"type": "http.request", "body": body}
-    request._receive = receive
-
-
-async def get_body(request: Request) -> bytes:
-    body = await request.body()
-    await set_body(request, body)
-    return body
-
-# 自定义http异常处理器
-@fun.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    res = ResponseDto(code=201, msg=HTTP_MSG_MAP.get(exc.status_code, exc.detail))
-    return JSONResponse(content=res.dict())
-
-# 自定义参数校验异常处理器
-@fun.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, err: RequestValidationError):
-    message = ""
-    data = {}
-    for raw_error in err.raw_errors:
-        if isinstance(raw_error.exc, ValidationError):
-            exc = raw_error.exc
-            if hasattr(exc, 'model'):
-                fields = exc.model.__dict__.get('__fields__')
-                for field_key in fields.keys():
-                    data[field_key] = fields.get(field_key).field_info.title
-    for error in err.errors():
-        field = str(error.get('loc')[-1])
-        message += data.get(field, field) + ":" + str(error.get("msg"))+","
-    res = ResponseDto(code=101, msg=f"请求参数非法! {message[:-1]}")
-    return JSONResponse(content=res.dict())
-
-# 手动捕获异常处理器
-@fun.exception_handler(NormalException)
-async def unexpected_exception_error(request: Request, exc: NormalException):
-    log_msg = f"数据工厂捕获到异常, 请求路径: {request.url.path}\n"
-    params = request.query_params
-    headers = request.headers
-    if params: log_msg += f"路径参数: {params}\n"
-    if headers.get('content-type') == 'application/json':
-        body = json.dumps(await request.json(), ensure_ascii=False)
-        log_msg += f"请求参数: {body}"
-    Log().info(log_msg)
-    res = ResponseDto(code=110, msg=exc.detail)
-    return JSONResponse(content=res.dict())
-
-# 自定义权限异常
-@fun.exception_handler(PermissionException)
-async def unexpected_exception_error(request: Request, exc: PermissionException):
-    res = ResponseDto(code=403, msg=exc.detail)
-    return JSONResponse(content=res.dict())
-
-# 自定义用户登录态异常
-@fun.exception_handler(AuthException)
-async def unexpected_exception_error(request: Request, exc: AuthException):
-    res = ResponseDto(code=401, msg=exc.detail)
-    return JSONResponse(content=res.dict())
-
-# 全局捕获异常
-@fun.middleware("http")
-async def errors_handling(request: Request, call_next):
-    log_msg = f"数据工厂捕获到系统错误, 请求路径:{request.url.path}\n"
-    params = request.query_params
-    body = await request.body()
-    headers = request.headers
-    if params:
-        log_msg += f"路径参数: {params}\n"
-    if body and headers.get('content-type') == 'application/json':
-        try:
-            body = json.dumps(json.loads(body), ensure_ascii=False)
-            log_msg += f"请求参数: {body}\n"
-        except:
-            res = ResponseDto(code=102, msg='解析json失败')
-            return JSONResponse(content=res.dict())
+async def request_info(request: Request):
+    """获取请求流量信息"""
+    logger.bind(name=None).info(f"{request.method} {request.url}")
     try:
-        await set_body(request, await request.body())
-        return await call_next(request)
-    except Exception as exc:
-        import traceback
-        log_msg += f"错误信息: {traceback.format_exc()}"
-        # todo 发送报错消息到企微机器人/钉钉/飞书
-        Log().error(log_msg)
-        res = ResponseDto(code=500, msg=str(exc.args[0]))
-        return JSONResponse(content=res.dict())
+        log_msg = ""
+        params = request.query_params
+        body = await request.body()
+        headers = request.headers
+        if params: log_msg += f"路径参数: {params}"
+        if body and headers.get('content-type') == 'application/json':
+            try:
+                body = json.dumps(json.loads(body), ensure_ascii=False)
+                log_msg += f"请求参数: {body}"
+            except:
+                log_msg +="解析json失败"
+        logger.bind(payload=body, name=None).info(log_msg)
+    except:
+        try:
+            body = await request.body()
+            if len(body) != 0:
+                # 有请求体，记录日志
+                logger.bind(payload=body, name=None).info(body)
+        except:
+            # 忽略文件上传类型的数据
+            pass
 
 
-#注册跨域
-# 利用CORSMiddleware中间件来实现CORS
-# allow_origins：允许跨域请求的域名列表
-# allow_methods：允许跨域请求的HTTP方法列表
-# allow_headers：跨域请求支持的HTTP头信息列表
-# allow_credentials：表示在跨域请求时是否支持cookie，True为支持
-fun.add_middleware(
-            CORSMiddleware,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
+async def register_routers(_app: FastAPI):
+    for item in routers.data:
+        _app.include_router(item[0], prefix=item[1], tags=item[2], dependencies=[Depends(request_context), Depends(request_info)])
+
+async def register_middlewares(_app: FastAPI):
+    """注册中间件，注意中间件的注册顺序"""
+    # 中间件执行的顺序是，谁先注册，谁就再最内层，它的再后一个注册，就再最外层
+    middleware_list = [ AuthMiddleware, ExceptionMiddleware ]
+    for middleware in middleware_list:
+        _app.add_middleware(middleware)
+    _app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+async def create_global_exception_handler(_app: FastAPI):
+    """创建全局异常处理器"""
+    exception_handler_list = [(StarletteHTTPException, http_exception_handler),
+                              (RequestValidationError, validation_exception_handler),
+                              (AuthException, auth_exception_handler),
+                              (PermissionException, role_exception_handler),
+                              (BusinessException, business_exception_handler),
+                              (Exception, global_exception_handler)]
+    for exception_handler in exception_handler_list:
+        _app.add_exception_handler(exception_handler[0], exception_handler[1])
+
+def init_logging(logging_conf=LOGGING_CONF):
+    for log_handler, log_conf in logging_conf.items():
+        log_file = log_conf.pop('file', None)
+        logger.add(log_file, **log_conf)

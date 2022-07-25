@@ -5,8 +5,8 @@
 
 
 from config import FilePath
-from app.utils.logger import Log
-from app.utils.cmd_utils import CmdUtils
+from app.commons.utils.logger import Log
+from app.commons.utils.cmd_utils import CmdUtils
 from urllib.parse import quote
 
 class Git(object):

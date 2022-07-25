@@ -5,7 +5,7 @@
 
 import base64
 from Crypto.Cipher import AES
-from config import Config
+from app.constants import constants
 
 class AesUtils:
 
@@ -25,7 +25,7 @@ class AesUtils:
         :return:
         """
         # 初始化加密器
-        aes = AES.new(cls.add_to_16(Config.AES_KEY), AES.MODE_CBC, cls.add_to_16(Config.AES_IV))
+        aes = AES.new(cls.add_to_16(constants.AES_KEY), AES.MODE_CBC, cls.add_to_16(constants.AES_IV))
         bs = AES.block_size
         pad2 = lambda s: s + (bs - len(s) % bs) * chr(bs - len(s) % bs)  # PKS7
         encrypt_aes = aes.encrypt(pad2(text).encode())
@@ -44,7 +44,7 @@ class AesUtils:
         """
         # 初始化解密器
         # 偏移量 16个0
-        aes = AES.new(cls.add_to_16(Config.AES_KEY), AES.MODE_CBC, cls.add_to_16(Config.AES_IV))
+        aes = AES.new(cls.add_to_16(constants.AES_KEY), AES.MODE_CBC, cls.add_to_16(constants.AES_IV))
         # 优先逆向解密base64成bytes
         base64_decrypted = base64.decodebytes(text.encode(encoding='utf-8'))
         # 执行解密并转码返回str

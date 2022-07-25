@@ -4,7 +4,7 @@
 # @File : cmd_utils.py
 
 import subprocess
-from app.utils.logger import Log
+from app.commons.utils.logger import Log
 
 class CmdUtils(object):
 

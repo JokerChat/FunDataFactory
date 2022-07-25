@@ -5,6 +5,7 @@
 
 from pydantic import BaseModel, validator, Field, EmailStr
 from config import Config, Permission
+from app.constants import constants
 import hashlib
 from app.models.base import ToolsSchemas
 from datetime import datetime
@@ -26,7 +27,7 @@ class RegisterUserBody(BaseModel):
     @validator('password')
     def md5_paw(cls, value):
         m = hashlib.md5()
-        m.update(f"{value}key={Config.KEY}".encode("utf-8"))
+        m.update(f"{value}key={constants.TOKEN_KEY}".encode("utf-8"))
         return m.hexdigest()
 
 class LoginUserBody(BaseModel):
@@ -40,15 +41,15 @@ class LoginUserBody(BaseModel):
     @validator('password')
     def md5_paw(cls, value):
         m = hashlib.md5()
-        m.update(f"{value}key={Config.KEY}".encode("utf-8"))
+        m.update(f"{value}key={constants.TOKEN_KEY}".encode("utf-8"))
         return m.hexdigest()
 
 class UpdateUserBody(BaseModel):
-    id: int = Field(..., title="用户id", description="必传")
+    username: str = Field(..., title="用户名", description="必传")
     role: int = Field(None, title="用户权限", description="非必传")
     is_valid: bool = Field(None, title="是否冻结", description="非必传")
 
-    @validator('id', 'role', 'is_valid')
+    @validator('username', 'role', 'is_valid')
     def check_field(cls, v):
         return ToolsSchemas.not_empty(v)
 
@@ -57,6 +58,15 @@ class UpdateUserBody(BaseModel):
         if value not in vars(Permission).values():
             raise ValueError('角色类型有误')
         return value
+
+
+class SearchUserBody(BaseModel):
+    keyword: str = Field(..., title="搜索内容", description="必传")
+
+    @validator('keyword')
+    def check_field(cls, v):
+        return ToolsSchemas.not_empty(v)
+
 
 class UserDto(BaseModel):
     id: int
@@ -78,17 +88,9 @@ class UserDto(BaseModel):
 class UserTokenDto(UserDto):
     token: str
 
-
 class LoginResDto(ResponseDto):
     msg: str = '登录成功'
     data: UserTokenDto
 
 class UserList(ListDto):
     lists: List[UserDto]
-
-class UserListResDto(ResponseDto):
-    data: UserList
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
-        }

@@ -6,20 +6,19 @@
 from app.models import Session
 from sqlalchemy import or_, func, asc
 from app.models.user import DataFactoryUser
-from app.utils.logger import Log
+from app.commons.utils.logger import Log
 from config import Permission
-from app.utils.exception_utils import record_log
-from app.routers.user.user_schema import LoginUserBody, UpdateUserBody
+from app.routers.user.user_schema import LoginUserBody, UpdateUserBody, SearchUserBody
 from datetime import datetime
-from app.utils.db_utils import DbUtils
-from app.utils.exception_utils import NormalException
+from app.commons.utils.db_utils import DbUtils
+from app.commons.exceptions.global_exception import BusinessException
+from loguru import logger
 
 class UserDao(object):
 
     log = Log('UserDao')
 
     @classmethod
-    @record_log
     def register_user(cls, username: str, name: str, password: str, email: str) -> None:
         """
         :param username: 用户名
@@ -32,7 +31,7 @@ class UserDao(object):
             # 先查询用户名或邮箱号是否重复
             users = session.query(DataFactoryUser).filter(or_(DataFactoryUser.username == username, DataFactoryUser.email == email)).first()
             if users:
-                raise NormalException("用户名或邮箱号重复")
+                raise BusinessException("用户名或邮箱号重复")
             # 统计用户表的用户数
             count = session.query(func.count(DataFactoryUser.id)).group_by(DataFactoryUser.id).count()
             user = DataFactoryUser(username, name, password, email)
@@ -44,7 +43,6 @@ class UserDao(object):
 
 
     @classmethod
-    @record_log
     def user_login(cls, data: LoginUserBody) -> DataFactoryUser:
         """
         :param data: 用户模型
@@ -53,10 +51,10 @@ class UserDao(object):
         with Session() as session:
             user = session.query(DataFactoryUser).filter(DataFactoryUser.username == data.username, DataFactoryUser.password == data.password).first()
             if user is None:
-                raise NormalException("用户名或密码错误")
+                raise BusinessException("用户名或密码错误")
             if user.is_valid:
                 # is_valid == true, 说明被冻结了
-                raise NormalException("对不起, 你的账号已被冻结, 请联系管理员处理")
+                raise BusinessException("对不起, 你的账号已被冻结, 请联系管理员处理")
             user.last_login_time = datetime.now()
             session.commit()
             # 进行对象刷新，更新对象，让对象过期，从而在下次访问时重新加载
@@ -65,7 +63,6 @@ class UserDao(object):
 
 
     @classmethod
-    @record_log
     def get_user_infos(cls, page: int=1, limit: int=10, search: str=None) ->(int, DataFactoryUser):
         """
         :param page: 页码
@@ -82,8 +79,22 @@ class UserDao(object):
             total = user_infos.count()
             return total, user_infos.limit(limit).offset((page - 1) * limit).all()
 
+
     @classmethod
-    @record_log
+    def search_user(cls, data: SearchUserBody) -> DataFactoryUser:
+        """
+        搜索用户
+        :param data: 输入内容
+        :return:
+        """
+        with Session() as session:
+            filter_list = [DataFactoryUser.is_valid == False]
+            user_query = session.query(DataFactoryUser)
+            filter_list.append(or_(DataFactoryUser.username.like(f"%{data.keyword}%"), DataFactoryUser.name.like(f"%{data.keyword}%"), DataFactoryUser.email.like(f"%{data.keyword}%")))
+            user = user_query.filter(*filter_list)
+            return user.all()
+
+    @classmethod
     def update_user(cls, data: UpdateUserBody, user_data: dict) -> None:
         """
         :param user_data: 用户数据
@@ -91,9 +102,9 @@ class UserDao(object):
         :return:
         """
         with Session() as session:
-            user = session.query(DataFactoryUser).filter(DataFactoryUser.id == data.id).first()
+            user = session.query(DataFactoryUser).filter(DataFactoryUser.username == data.username).first()
             if user is None:
-                raise NormalException("用户不存在")
+                raise BusinessException("用户不存在")
             # not_null=True 只有非空字段才更新数据
             DbUtils.update_model(user, data.dict(), user_data, not_null=True)
             session.commit()
