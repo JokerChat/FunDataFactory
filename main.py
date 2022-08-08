@@ -13,7 +13,7 @@ async def startup_event():
 
     # step1 初始化项目日志器
     init_logging()
-    logger.info('FunDataFactory is start success！！！')
+    logger.info('logging is init success！！！')
 
     # step2 注册路由
     await register_routers(fun)
@@ -25,3 +25,5 @@ async def startup_event():
     # step4 注册全局异常处理器
     await create_global_exception_handler(fun)
     logger.info('exceptionHandler is register success！！！')
+
+    logger.info('FunDataFactory is start success！！！')

@@ -6,7 +6,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from config import Config
+from app.commons.settings.config import Config
 
 # Base是用来给模型类继承的
 Base = declarative_base()

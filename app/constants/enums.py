@@ -21,6 +21,14 @@ class IntEnum(int, BaseEnum):
     pass
 
 class PermissionEnum(IntEnum):
-    MEMBERS  = 0 # 普通用户
-    LEADER = 1  # 组长
-    ADMIN = 2  # 超管
+    members = 0 # 普通用户
+    leader = 1 # 组长
+    admin = 2 # 超管
+
+class DeleteEnum(IntEnum):
+    no = 0 # 未删除
+    yes = 1 # 已删除
+
+class ProjectRoleEnum(IntEnum):
+    members = 0 # 普通用户
+    leader = 1 # 组长

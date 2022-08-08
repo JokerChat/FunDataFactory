@@ -6,7 +6,8 @@
 from datetime import datetime
 from sqlalchemy import Column, String, INT, DATETIME, SMALLINT, func, Boolean
 from app.models import Base
-from config import Permission
+from app.constants.enums import PermissionEnum
+from app.routers.user.request_model.user_in import RegisterUserBody
 
 class DataFactoryUser(Base):
     __tablename__ = "data_factory_user"
@@ -24,12 +25,12 @@ class DataFactoryUser(Base):
     update_name = Column(String(20), nullable=True, comment="更新人")
     update_time = Column(DATETIME, onupdate=func.now(), nullable=False, comment="更新时间")
 
-    def __init__(self, username, name, password, email):
-        self.username = username
-        self.name = name
-        self.password = password
-        self.email = email
-        self.role = Permission.MEMBERS
+    def __init__(self, form: RegisterUserBody):
+        self.username = form.username
+        self.name = form.name
+        self.password = form.password
+        self.email = form.email
+        self.role = PermissionEnum.members.value # 默认注册进来 普通用户权限
         self.is_valid = False
         self.create_time = datetime.now()
         self.update_time = datetime.now()

@@ -7,19 +7,19 @@ from fastapi import FastAPI, Depends, Request
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-from app.models.base import ResponseDto
+from app.commons.responses.response_model import ResponseDto
 from app.routers import routers
 from app.commons.exceptions.expention_handler import (
     http_exception_handler,
     role_exception_handler,
     auth_exception_handler,
-    validation_exception_handler,
+    body_validation_exception_handler,
     business_exception_handler, global_exception_handler)
 from app.commons.exceptions.global_exception import BusinessException, AuthException, PermissionException
 from app.middlewares.middlewares import AuthMiddleware, ExceptionMiddleware
 from app.commons.utils.auth_utils import request_context
-from config import LOGGING_CONF
-from config import Text
+from app.commons.settings.config import LOGGING_CONF
+from app.commons.settings.config import Text
 from loguru import logger
 from app.constants import constants
 
@@ -31,11 +31,13 @@ async def request_info(request: Request):
     """获取请求流量信息"""
     logger.bind(name=None).info(f"{request.method} {request.url}")
     try:
+        from urllib import parse
         log_msg = ""
         params = request.query_params
         body = await request.body()
         headers = request.headers
-        if params: log_msg += f"路径参数: {params}"
+        if params:
+            log_msg += f"路径参数: {parse.unquote(str(params))}"
         if body and headers.get('content-type') == 'application/json':
             try:
                 body = json.dumps(json.loads(body), ensure_ascii=False)
@@ -75,13 +77,13 @@ async def register_middlewares(_app: FastAPI):
 async def create_global_exception_handler(_app: FastAPI):
     """创建全局异常处理器"""
     exception_handler_list = [(StarletteHTTPException, http_exception_handler),
-                              (RequestValidationError, validation_exception_handler),
+                              (RequestValidationError, body_validation_exception_handler),
                               (AuthException, auth_exception_handler),
                               (PermissionException, role_exception_handler),
                               (BusinessException, business_exception_handler),
                               (Exception, global_exception_handler)]
-    for exception_handler in exception_handler_list:
-        _app.add_exception_handler(exception_handler[0], exception_handler[1])
+    for exception_name, exception_handler in exception_handler_list:
+        _app.add_exception_handler(exception_name, exception_handler)
 
 def init_logging(logging_conf=LOGGING_CONF):
     for log_handler, log_conf in logging_conf.items():

@@ -4,7 +4,6 @@
 # @File : config.py
 
 import os
-from app.constants import constants
 
 
 #fastapi 启动配置文件
@@ -29,7 +28,13 @@ class Text(object):
 
 
 class FilePath(object):
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # 后端服务项目目录
+    SETS_PATH = os.path.dirname(os.path.abspath(__file__)) # settings目录
+
+    COM_path = os.path.dirname(os.path.abspath(SETS_PATH)) # commons目录
+
+    APP_PATH = os.path.dirname(os.path.abspath(COM_path)) # app 路径
+
+    BASE_DIR = os.path.dirname(os.path.abspath(APP_PATH)) # 后端服务项目目录
 
     LOG_FILE_PATH = os.path.join(BASE_DIR, "logs") # 日志文件路径
     if not os.path.isdir(LOG_FILE_PATH): os.mkdir(LOG_FILE_PATH)
@@ -38,18 +43,11 @@ class FilePath(object):
 
     FUN_ERROR = os.path.join(LOG_FILE_PATH, 'fun_error.log')
 
-    APP_PATH = os.path.join(BASE_DIR, "app") # app 路径
+    CRUD_PATH = os.path.join(APP_PATH, "crud")  # curd路径
 
-    CURD_PATH = os.path.join(APP_PATH, "curd")  # curd路径
+    RSA_PUB_KEY = os.path.join(SETS_PATH, 'keys/rsa_pub_key')
 
-    RSA_PUB_KEY = os.path.join(BASE_DIR, 'app/commons/settings/keys/rsa_pub_key')
-
-    RSA_PRI_KEY = os.path.join(BASE_DIR, 'app/commons/settings/keys/rsa_pri_key')
-
-class Permission(object):
-    MEMBERS  = 0 # 普通用户
-    LEADER = 1  # 组长
-    ADMIN = 2  # 超管
+    RSA_PRI_KEY = os.path.join(SETS_PATH, 'keys/rsa_pri_key')
 
 HTTP_MSG_MAP = {
     404 : '请求路径找不到',

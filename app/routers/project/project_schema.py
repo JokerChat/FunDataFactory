@@ -39,7 +39,7 @@ class AddProject(BaseModel):
     def check_pwd(cls, v, values, **kwargs):
         if 'pull_type' in values and values['pull_type'] == 0:
             v = ToolsSchemas.not_empty(v)
-            from app.utils.aes_utils import AesUtils
+            from app.commons.utils.aes_utils import AesUtils
             return AesUtils.encrypt(v)
         return v
 
@@ -74,9 +74,9 @@ class ProjectDto(BaseModel):
 
     class Config:
         orm_mode = True
-        json_encoders = {
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
-        }
+        # json_encoders = {
+        #     datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")
+        # }
 
 class ProjectList(ListDto):
     lists: List[ProjectDto]

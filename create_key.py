@@ -4,7 +4,7 @@
 # @File : create_key.py
 
 import paramiko
-from config import FilePath
+from app.commons.settings.config import FilePath
 
 
 def generate_ssh_key() -> None:

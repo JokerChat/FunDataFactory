@@ -3,7 +3,7 @@
 # @Author : junjie
 # @File : middlewares.py
 
-import config
+from app.commons.settings import config
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp, Scope, Receive, Send

@@ -8,16 +8,14 @@ from app.models.project_role import DataFactoryProjectRole
 from app.models.project import DataFactoryProject
 from app.models.user import DataFactoryUser
 from app.routers.project.project_role_schema import AddProjectRole, EditProjectRole
-from app.commons.utils.logger import Log
 from app.commons.exceptions.global_exception import BusinessException
-from app.commons.utils.db_utils import DbUtils
 from sqlalchemy import desc, or_
-from config import Permission
+from app.constants.enums import PermissionEnum
+from app.crud import BaseCrud
 
+class ProjectRoleDao(BaseCrud):
 
-class ProjectRoleDao(object):
-
-    log = Log("ProjectRoleDao")
+    model = DataFactoryProjectRole
 
     @classmethod
     def insert_project_role(cls, form: AddProjectRole, user: dict) ->None:
@@ -31,15 +29,14 @@ class ProjectRoleDao(object):
             cls.operation_permission(form.project_id, user)
             user_query = session.query(DataFactoryUser).filter(DataFactoryUser.id == form.user_id).first()
             if user_query is None:
-                raise Exception("用户不存在！！！")
+                raise BusinessException("用户不存在！！！")
             if user_query.is_valid:
                 raise BusinessException("对不起, 该账号已被冻结, 无法添加项目权限")
-            user_role_query = session.query(DataFactoryProjectRole).filter(DataFactoryProjectRole.user_id == form.user_id, DataFactoryProjectRole.project_id == form.project_id, DataFactoryProjectRole.del_flag == 0).first()
-            if user_role_query is not None:
+            ant = cls.get_with_existed(session, user_id = form.user_id, project_id = form.project_id)
+            if ant:
                 raise BusinessException("该用户项目权限已存在！！！")
             project_role = DataFactoryProjectRole(form, user)
-            session.add(project_role)
-            session.commit()
+            cls.insert_by_model(session, model_obj = project_role)
 
 
 
@@ -51,14 +48,11 @@ class ProjectRoleDao(object):
         :param user: 用户数据
         :return:
         """
-        with Session() as session:
-            user_role_query = session.query(DataFactoryProjectRole).filter(DataFactoryProjectRole.id == form.id,
-                                                                           DataFactoryProjectRole.del_flag == 0).first()
-            if user_role_query is None:
-                raise BusinessException("用户角色不存在！！！")
-            cls.operation_permission(user_role_query.project_id, user)
-            DbUtils.update_model(user_role_query, form.dict(), user)
-            session.commit()
+        user_role_query = cls.get_with_id(id = form.id)
+        if user_role_query is None:
+            raise BusinessException("用户角色不存在！！！")
+        cls.operation_permission(user_role_query.project_id, user)
+        cls.update_by_id(model = form, user = user)
 
     @classmethod
     def delete_project_role(cls, id: int, user: dict) -> None:
@@ -68,14 +62,11 @@ class ProjectRoleDao(object):
         :param user: 用户数据
         :return:
         """
-        with Session() as session:
-            user_role_query = session.query(DataFactoryProjectRole).filter(DataFactoryProjectRole.id == id,
-                                                                           DataFactoryProjectRole.del_flag == 0).first()
-            if user_role_query is None:
-                raise BusinessException("用户角色不存在！！！")
-            cls.operation_permission(user_role_query.project_id, user)
-            DbUtils.delete_model(user_role_query, user)
-            session.commit()
+        user_role_query = cls.get_with_id(id = id)
+        if user_role_query is None:
+            raise BusinessException("用户角色不存在！！！")
+        cls.operation_permission(user_role_query.project_id, user)
+        cls.delete_by_id(id = id)
 
     @classmethod
     def project_role_list(cls, uesr:dict, project_id: int, page = 1, limit = 10, search=None):
@@ -109,16 +100,14 @@ class ProjectRoleDao(object):
         :param user: 用户数据
         :return:
         """
-        with Session() as session:
-            projects = session.query(DataFactoryProjectRole.project_id).filter(DataFactoryProjectRole.user_id == user['id'],
-                                                               DataFactoryProjectRole.del_flag == 0).all()
-            return  [i[0] for i in projects]
+        projects = cls.get_with_params(user_id = user['id'])
+        return [project.project_id for project in projects]
 
 
     @classmethod
     def read_permission(cls, project_id: int, user: dict) -> None:
         """判断是否有项目查看权限"""
-        if user['role'] == Permission.ADMIN:
+        if user['role'] == PermissionEnum.admin.value:
             # 超管不限制
             return
         with Session() as session:
@@ -130,11 +119,9 @@ class ProjectRoleDao(object):
                 return
             else:
                 # 查询是否在项目配有权限
-                project_role = session.query(DataFactoryProjectRole).filter(DataFactoryProjectRole.user_id == user['id'],
-                                                             DataFactoryProjectRole.project_id == project_id,
-                                                             DataFactoryProjectRole.del_flag == 0).first()
+                project_role = cls.get_with_first(session, user_id = user['id'], project_id = project_id)
                 if project_role is None:
-                    raise BusinessException(f"对不起，你没有{project.project_name}项目权限！！！")
+                    raise BusinessException(f"对不起，你没有{project.project_name}项目查看权限！！！")
 
 
     @classmethod
@@ -144,15 +131,14 @@ class ProjectRoleDao(object):
             project = session.query(DataFactoryProject).filter(DataFactoryProject.id == project_id,
                                                                DataFactoryProject.del_flag == 0).first()
             if project is None: raise BusinessException("项目不存在")
-            if user['role'] == Permission.ADMIN or project.owner == user['username']:
+            if user['role'] == PermissionEnum.admin.value or project.owner == user['username']:
                 # 超管 或者 项目负责人可以操作
                 return
             else:
                 # 非超管 或者 非项目负责人
-                role_query = session.query(DataFactoryProjectRole).filter(DataFactoryProjectRole.user_id == user['id'],
-                                                             DataFactoryProjectRole.project_id == project_id, DataFactoryProjectRole.del_flag ==0 ).first()
+                role_query = cls.get_with_first(session, user_id = user['id'], project_id = project_id)
 
-                if role_query is None or role_query.project_role == Permission.MEMBERS:
+                if role_query is None or role_query.project_role == PermissionEnum.members.value:
                     # 查询为空 或者 项目权限为组员
                     raise BusinessException(f"对不起，你没有{project.project_name}项目操作权限！！！")
                 else:

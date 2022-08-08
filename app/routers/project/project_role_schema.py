@@ -9,13 +9,14 @@ from app.models.base import ToolsSchemas
 from typing import Literal, List
 from datetime import datetime
 from app.models.base import ResponseDto,ListDto
+from app.constants.enums import ProjectRoleEnum
 
 
 
 
 class AddProjectRole(BaseModel):
     project_id: int = Field(..., title="项目id", description="必传")
-    project_role: Literal[0, 1] = Field(..., title="项目权限", description="必传")
+    project_role: ProjectRoleEnum = Field(..., title="项目权限", description="必传")
     user_id: int = Field(..., title="用户id", description="必传")
 
 

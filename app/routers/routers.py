@@ -4,7 +4,7 @@
 # @File : __init__.py
 
 
-from app.routers.user import user
+from app.routers import user
 from app.routers.project import project
 
 
