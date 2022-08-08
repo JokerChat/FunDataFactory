@@ -9,7 +9,7 @@ from app.commons.exceptions.global_exception import AuthException, PermissionExc
 from starlette.requests import Request
 from app.constants.enums import PermissionEnum
 from app.crud.user.UserDao import UserDao
-from app.routers.user.user_schema import UserDto
+from app.routers.user.response_model.user_out import UserDto
 
 async def authentication(request: Request):
     # 从请求中获取token`

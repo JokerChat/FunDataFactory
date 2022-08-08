@@ -4,7 +4,7 @@
 # @File : user_schems.py
 
 import hashlib
-from pydantic import BaseModel, validator, Field, EmailStr
+from pydantic import validator, Field, EmailStr
 from app.constants import constants
 from app.constants.enums import PermissionEnum
 from app.commons.requests.request_model import BaseBody, ToolsSchemas
@@ -26,7 +26,7 @@ class RegisterUserBody(BaseBody):
         m.update(f"{value}key={constants.TOKEN_KEY}".encode("utf-8"))
         return m.hexdigest()
 
-class LoginUserBody(BaseModel):
+class LoginUserBody(BaseBody):
     username: str = Field(..., title="用户名", description="必传")
     password: str = Field(..., title="密码", description="必传")
 
@@ -40,7 +40,7 @@ class LoginUserBody(BaseModel):
         m.update(f"{value}key={constants.TOKEN_KEY}".encode("utf-8"))
         return m.hexdigest()
 
-class UpdateUserBody(BaseModel):
+class UpdateUserBody(BaseBody):
     id: int = Field(..., title="用户id", description="必传")
     role: PermissionEnum = Field(None, title="用户权限", description="非必传")
     is_valid: bool = Field(None, title="是否冻结", description="非必传")
@@ -50,7 +50,7 @@ class UpdateUserBody(BaseModel):
         return ToolsSchemas.not_empty(v)
 
 
-class SearchUserBody(BaseModel):
+class SearchUserBody(BaseBody):
     keyword: str = Field(..., title="搜索内容", description="必传")
 
     @validator('keyword')

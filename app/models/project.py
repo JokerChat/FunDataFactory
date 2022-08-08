@@ -5,8 +5,7 @@
 
 from sqlalchemy import Column, String, UniqueConstraint, BOOLEAN, SMALLINT
 from app.models.base import FunBaseModel
-from app.routers.project.project_schema import AddProject
-from sqlalchemy import INT
+from app.routers.project.request_model.project_in import AddProject
 
 class DataFactoryProject(FunBaseModel):
     """
@@ -40,4 +39,4 @@ class DataFactoryProject(FunBaseModel):
         self.git_password = form.git_password
         self.owner = form.owner
         self.private = form.private
-        self.pull_type = form.pull_type
+        self.pull_type = form.pull_type.value

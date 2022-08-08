@@ -7,7 +7,7 @@ from fastapi import Request
 from app.commons.settings.config import HTTP_MSG_MAP
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
-from app.models.base import ResponseDto
+from app.commons.responses.response_model import ResponseDto
 from fastapi.responses import JSONResponse
 from app.commons.exceptions.global_exception import BusinessException, AuthException, PermissionException
 from pydantic import ValidationError

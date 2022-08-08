@@ -32,3 +32,7 @@ class DeleteEnum(IntEnum):
 class ProjectRoleEnum(IntEnum):
     members = 0 # 普通用户
     leader = 1 # 组长
+
+class PullTypeEnum(IntEnum):
+    http = 0
+    ssh = 1

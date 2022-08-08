@@ -6,7 +6,7 @@
 
 from sqlalchemy import Column, INT, SMALLINT
 from app.models.base import FunBaseModel
-from app.routers.project.project_role_schema import AddProjectRole
+from app.routers.project.request_model.project_in import AddProjectRole
 
 
 class DataFactoryProjectRole(FunBaseModel):

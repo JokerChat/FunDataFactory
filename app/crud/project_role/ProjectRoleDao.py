@@ -7,7 +7,7 @@ from app.models import Session
 from app.models.project_role import DataFactoryProjectRole
 from app.models.project import DataFactoryProject
 from app.models.user import DataFactoryUser
-from app.routers.project.project_role_schema import AddProjectRole, EditProjectRole
+from app.routers.project.request_model.project_in import AddProjectRole, EditProjectRole
 from app.commons.exceptions.global_exception import BusinessException
 from sqlalchemy import desc, or_
 from app.constants.enums import PermissionEnum

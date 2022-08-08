@@ -7,7 +7,7 @@ from sqlalchemy import or_, desc
 from app.models import Session
 from app.models.project import DataFactoryProject
 from app.models.user import DataFactoryUser
-from app.routers.project.project_schema import AddProject, EditProject
+from app.routers.project.request_model.project_in import AddProject, EditProject
 from app.commons.exceptions.global_exception import BusinessException
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from app.constants.enums import PermissionEnum
