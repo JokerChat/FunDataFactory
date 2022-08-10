@@ -29,5 +29,6 @@ ERROR_MSG_TEMPLATES = {
     "type_error.float": "必须为float类型",
     "type_error.path": "不是有效的路径",
     "type_error.list": "必须为list类型",
-    "type_error.str": "必须为str类型"
+    "type_error.str": "必须为str类型",
+    "type_error.enum": "类型有误"
 }

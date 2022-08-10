@@ -36,7 +36,7 @@ async def body_validation_exception_handler(request: Request, err: RequestValida
                 field = str(error.get('loc')[-1])
                 _msg = error.get("msg")
                 message += f"{data.get(field, field)}{_msg},"
-    res = ResponseDto(code=CodeEnum.PARAMS_ERROR.code, msg=f"请求参数非法! {message[:-1]}")
+    res = ResponseDto(code=CodeEnum.PARAMS_ERROR.code, msg=f"请求参数非法!{message[:-1]}")
     return JSONResponse(content=res.dict())
 
 # 业务异常处理器

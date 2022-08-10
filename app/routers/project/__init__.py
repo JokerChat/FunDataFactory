@@ -13,7 +13,7 @@ from typing import List
 router = APIRouter()
 
 router.add_api_route("/insert",
-                     project_api.init_project,
+                     project_api.insert_project,
                      methods=["post"],
                      name="新增项目",
                      response_model=ResponseDto)

@@ -13,6 +13,8 @@ from app.core.git import Git
 from app.commons.utils.aes_utils import AesUtils
 from app.commons.utils.context_utils import REQUEST_CONTEXT
 from app.constants.enums import PullTypeEnum
+from app.commons.exceptions.global_exception import BusinessException
+
 
 
 def insert_project_logic(body: AddProject):
@@ -80,7 +82,7 @@ def init_project(id: int):
     project = ProjectDao.project_detail(id, user)
     project_path = os.path.join(FilePath.BASE_DIR, project.git_project)
     if os.path.isdir(project_path):
-        raise Exception("项目已存在, 请执行刷新项目！")
+        raise BusinessException("项目已存在, 请执行刷新项目！")
     # 拉取项目
     if project.pull_type == PullTypeEnum.http.value:
         Git.git_clone_http(project.git_branch, project.git_url, project.git_account, AesUtils.decrypt(project.git_password))
@@ -97,3 +99,4 @@ def project_detail_logic(id: int):
         with open(FilePath.RSA_PUB_KEY, 'r', encoding='utf-8') as f:
             rsa_pub_key = f.read()
     setattr(project, 'rsa_pub_key', rsa_pub_key)
+    return project

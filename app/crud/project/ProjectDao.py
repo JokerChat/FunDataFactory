@@ -48,7 +48,7 @@ class ProjectDao(BaseCrud):
         :param user: 用户数据
         :return:
         """
-        # ProjectRoleDao.operation_permission(data.id, user)
+        ProjectRoleDao.operation_permission(data.id, user)
         ant = cls.get_with_existed(id = data.id)
         if not ant:
             raise BusinessException("项目不存在")

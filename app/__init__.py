@@ -38,7 +38,7 @@ async def request_info(request: Request):
         headers = request.headers
         if params:
             log_msg += f"路径参数: {parse.unquote(str(params))}"
-        if body and headers.get('content-type') == 'application/json':
+        if body and 'application/json' in headers.get('content-type'):
             try:
                 body = json.dumps(json.loads(body), ensure_ascii=False)
                 log_msg += f"请求参数: {body}"

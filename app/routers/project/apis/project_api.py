@@ -40,7 +40,7 @@ def update_project_role(body: EditProjectRole):
 
 
 def delete_project_role(id: int):
-    project_logic.delete_project_logic(id)
+    project_logic.delete_project_role_logic(id)
     return ResponseDto(msg="删除成功")
 
 

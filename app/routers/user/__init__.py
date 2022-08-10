@@ -40,7 +40,7 @@ router.add_api_route("/list",
 
 router.add_api_route("/logout",
             user_api.user_logout,
-            methods=["post"],
+            methods=["get"],
             name="退出登录",
             description="退出登录",
             response_model=ResponseDto)
@@ -56,6 +56,6 @@ router.add_api_route("/update",
 
 router.add_api_route("/search",
                      user_api.user_search,
-                     methods=["get"],
+                     methods=["post"],
                      name="搜索用户",
                      response_model=ResponseDto[List[SearchUserDto]])
