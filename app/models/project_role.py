@@ -19,7 +19,7 @@ class DataFactoryProjectRole(FunBaseModel):
     project_role = Column(SMALLINT, default=0, nullable=False, comment="0: 普通用户 1: 组长")
 
     def __init__(self, form: AddProjectRole, user, del_flag=0, id=None):
-        super().__init__(create_code=user['id'], create_name=user['username'], del_flag=del_flag, id=id)
+        super().__init__(create_id=user['id'], create_name=user['username'], del_flag=del_flag, id=id)
         self.user_id = form.user_id
         self.project_id = form.project_id
         self.project_role = form.project_role.value

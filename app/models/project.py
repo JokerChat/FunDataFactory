@@ -28,7 +28,7 @@ class DataFactoryProject(FunBaseModel):
     git_password = Column(String(64), nullable=True, comment="git密码")
 
     def __init__(self, form: AddProject, user, del_flag=0, id=None):
-        super().__init__(create_code=user['id'], create_name=user['username'], del_flag=del_flag, id=id)
+        super().__init__(create_id=user['id'], create_name=user['username'], del_flag=del_flag, id=id)
         self.git_project = form.git_project
         self.project_name = form.project_name
         self.description = form.description
