@@ -3,9 +3,8 @@
 # @Author : junjie
 # @File : user_out.py
 
-from app.commons.responses.response_model import BaseDto, ResponseDto, ListDto
+from app.commons.responses.response_model import BaseDto
 from datetime import datetime
-from typing import List
 
 class SearchUserDto(BaseDto):
     id: int

@@ -3,7 +3,7 @@
 # @Author : junjie
 # @File : ProjectDao.py
 
-from sqlalchemy import or_, desc
+from sqlalchemy import or_
 from app.models import Session
 from app.models.project import DataFactoryProject
 from app.models.user import DataFactoryUser

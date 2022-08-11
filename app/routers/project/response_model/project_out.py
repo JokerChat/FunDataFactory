@@ -22,9 +22,9 @@ class ProjectDto(BaseDto):
     create_time: datetime
     update_time: datetime
     del_flag: int
-    create_code: int
+    create_id: int
     create_name: str
-    update_code: int = None
+    update_id: int = None
     update_name: str = None
 
 

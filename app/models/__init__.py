@@ -17,5 +17,4 @@ engine = create_engine(Config.SQLALCHEMY_DATABASE_URI, pool_recycle=7200, pool_p
 #创建会话，autocommit自动提交，autoflush 自动刷新，bind 绑定创建的引擎
 Session = sessionmaker(bind=engine)
 
-#向数据库发出建表完成类与表的映射
-Base.metadata.create_all(engine)
+

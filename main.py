@@ -26,4 +26,10 @@ async def startup_event():
     await create_global_exception_handler(fun)
     logger.info('exceptionHandler is register success！！！')
 
+    from app.models import Base, engine
+    # 向数据库发出建表完成类与表的映射
+    Base.metadata.create_all(engine)
+    logger.info('db is init success！！！')
+
+
     logger.info('FunDataFactory is start success！！！')

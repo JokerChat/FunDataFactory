@@ -5,37 +5,6 @@
 # 本页代码"借鉴"pity
 # pity github: https://github.com/wuranxu/pity
 
-from app.models import Session
-
-# def get_curd_path():
-#     """获取curd目录下所有的xxxDao.py"""
-#     curd_path_list = []
-#     for file in os.listdir(FilePath.CRUD_PATH):
-#         # 拼接目录
-#         file_path = os.path.join(FilePath.CRUD_PATH, file)
-#         # 判断过滤, 取有效目录
-#         if os.path.isdir(file_path) and '__pycache__' not in file:
-#             from collections import defaultdict
-#             path_dict = defaultdict(list)
-#             # 获取目录下所有的xxxDao.py
-#             for py_file in os.listdir(file_path):
-#                 if py_file.endswith('py') and 'init' not in py_file:
-#                     path_dict[file].append(py_file.split('.')[0])
-#             curd_path_list.append(path_dict)
-#     return curd_path_list
-#
-# dao_path_list = get_curd_path()
-# for path in dao_path_list:
-#     for file_path,pys in path.items():
-#         # 拼接对应的crud目录
-#         son_dao_path = os.path.join(FilePath.CRUD_PATH, file_path)
-#         # 导包时, 默认在这个路径下查找
-#         sys.path.append(son_dao_path)
-#         for py in pys:
-#             # 动态导包进去
-#             importlib.import_module(py)
-#
-# Base.metadata.create_all(engine)
 
 
 from app.models.base import FunBaseModel
@@ -46,6 +15,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from functools import wraps
 from enum import Enum
+from app.models import Session
 
 
 
@@ -215,7 +185,7 @@ class BaseCrud(object):
             else:
                 setattr(query_obj, var, value)
             if user:
-                setattr(query_obj, 'update_code', user['id'])
+                setattr(query_obj, 'update_id', user['id'])
                 setattr(query_obj, 'update_name', user['username'])
         session.commit()
         session.refresh(query_obj)
@@ -233,8 +203,8 @@ class BaseCrud(object):
         :return:
         """
         # https://docs.sqlalchemy.org/en/14/errors.html#error-bhk3
-        if getattr(cls.model, 'update_code') and getattr(cls.model, 'update_name') and user:
-            kwargs['update_code'] = user['id']
+        if getattr(cls.model, 'update_id') and getattr(cls.model, 'update_name') and user:
+            kwargs['update_id'] = user['id']
             kwargs['update_name'] = user['username']
         query_obj = session.query(cls.model).filter(*filter_list)
         query_obj.update(kwargs)
@@ -272,7 +242,7 @@ class BaseCrud(object):
         setattr(query_obj, 'del_flag', 1)
         setattr(query_obj, 'update_time', datetime.now())
         if user:
-            setattr(query_obj, 'update_code', user['id'])
+            setattr(query_obj, 'update_id', user['id'])
             setattr(query_obj, 'update_name', user['username'])
         session.commit()
         session.refresh(query_obj)

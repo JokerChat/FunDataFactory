@@ -21,7 +21,7 @@ class DataFactoryUser(Base):
     last_login_time = Column(DATETIME, nullable=True, comment="上次登录时间")
     is_valid = Column(Boolean, nullable=False, default=False, comment="是否冻结")
     create_time = Column(DATETIME, nullable=False, comment="创建时间")
-    update_code = Column(String(20), nullable=True, comment="更新人编码")
+    update_id = Column(String(20), nullable=True, comment="更新人编码")
     update_name = Column(String(20), nullable=True, comment="更新人")
     update_time = Column(DATETIME, onupdate=func.now(), nullable=False, comment="更新时间")
 
