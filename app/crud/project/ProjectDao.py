@@ -8,6 +8,7 @@ from app.models import Session
 from app.models.project import DataFactoryProject
 from app.models.user import DataFactoryUser
 from app.routers.project.request_model.project_in import AddProject, EditProject
+from app.routers.project.response_model.project_out import ProjectListDto
 from app.commons.exceptions.global_exception import BusinessException
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from app.constants.enums import PermissionEnum
@@ -87,6 +88,7 @@ class ProjectDao(BaseCrud):
         total, project_infos = cls.get_with_pagination(page = page,
                                                        limit = limit,
                                                        filter_list = filter_list,
+                                                       _fields = ProjectListDto,
                                                        project_name = f"%{search}%" if search else None)
         return total, project_infos
 

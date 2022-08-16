@@ -47,6 +47,21 @@ class Git(object):
         CmdUtils.cmd(command_str)
         logger.info("ssh克隆结束")
 
+    @staticmethod
+    def git_pull(project_path: str, git_branch: str) -> None:
+        """
+        拉取代码
+        :param project_path: 项目路径
+        :param git_branch: 代码分支
+        :return:
+        """
+        logger.info("拉取项目代码开始")
+        command_str = f"cd {project_path}\n" \
+                      f"git fetch --all\n" \
+                      f"git reset --hard origin/{git_branch}\n"
+        CmdUtils.cmd(command_str)
+        logger.info("拉取项目代码结束")
+
 if __name__ == '__main__':
     url = 'git@gitee.com:JokerChat/img.git'
     branch = 'master'

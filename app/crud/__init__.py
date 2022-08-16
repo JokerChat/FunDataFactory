@@ -11,7 +11,8 @@ from app.models.base import FunBaseModel
 from typing import Type
 from loguru import logger
 from app.commons.exceptions.global_exception import BusinessException
-from pydantic import BaseModel
+from app.commons.requests.request_model import BaseBody
+from app.commons.responses.response_model import BaseDto
 from datetime import datetime
 from functools import wraps
 from enum import Enum
@@ -43,31 +44,39 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def get_with_params(cls, session = Session(), *, filter_list: list = None, _sort: list = None, **kwargs):
+    def get_with_params(cls, session = Session(), *, filter_list: list = None, _sort: list = None, _fields: Type[BaseDto] = None, **kwargs):
         """
         查询数据
         :param session: 会话
         :param filter_list: 过滤条件，比较特殊的，or_(xxx == xxx)
         :param _sort: 排序字段
         :param kwargs:  不定传参，xx = xx
+        :param _fields: Dto 过滤查询
         :return: 查询对象
         """
-        query_obj = cls.query_wrapper(session, filter_list, _sort, **kwargs)
+        query_obj = cls.query_wrapper(session, filter_list, _sort, _fields, **kwargs)
         return query_obj.all()
 
 
     @classmethod
-    def query_wrapper(cls, session = Session(), filter_list: list = None, _sort: list = None, **kwargs):
+    def query_wrapper(cls, session = Session(), filter_list: list = None, _sort: list = None, _fields: Type[BaseDto] = None, **kwargs):
         """
         查询数据
         :param session: 会话
         :param filter_list: 过滤条件，比较特殊的，or_(xxx == xxx)
         :param _sort: 排序字段，[xxx.xxx]
         :param kwargs: 不定传参，xx = xx
+        :param _fields: Dto 过滤查询
         :return: 查询语句
         """
         _filter_list = cls.__filter_k_v(filter_list, **kwargs)
-        query_obj = session.query(cls.model).filter(*_filter_list)
+        if _fields:
+            field_list = []
+            for field in _fields.__fields__.keys():
+                field_list.append(getattr(cls.model, field))
+            query_obj = session.query(*field_list).filter(*_filter_list)
+        else:
+            query_obj = session.query(cls.model).filter(*_filter_list)
         # 有排序字段时，进行排序
         return query_obj.order_by(*_sort) if _sort else query_obj
 
@@ -160,7 +169,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def update_by_id(cls, session: Session(), *, model: BaseModel, user: dict=None,  not_null = False):
+    def update_by_id(cls, session: Session(), *, model: Type[BaseBody], user: dict=None,  not_null = False):
         """
         通过主键id更新数据
         :param session: 会话
@@ -214,10 +223,10 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def insert_by_model(cls, session: Session(), *, model_obj: BaseModel):
+    def insert_by_model(cls, session: Session(), *, model_obj: FunBaseModel):
         """
         :param session: 会话
-        :param model_obj: 实例化的对象
+        :param model_obj: 实例化的表
         :return:
         """
         session.add(model_obj)

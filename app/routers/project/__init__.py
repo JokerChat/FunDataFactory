@@ -5,7 +5,7 @@
 
 from fastapi import APIRouter
 from app.routers.project.apis import project_api
-from app.routers.project.response_model.project_out import ProjectDto, ProjectDetailDto, RoleDto
+from app.routers.project.response_model.project_out import ProjectListDto, ProjectDetailDto, RoleDto
 from app.commons.responses.response_model import ResponseDto, ListResponseDto
 from typing import List
 
@@ -38,7 +38,7 @@ router.add_api_route("/list",
                      project_api.get_project_infos,
                      methods=["get"],
                      name="项目列表",
-                     response_model=ListResponseDto[List[ProjectDto]])
+                     response_model=ListResponseDto[List[ProjectListDto]])
 
 
 router.add_api_route("/role/insert",
@@ -89,7 +89,11 @@ router.add_api_route("/init",
                      name="初始化项目",
                      response_model=ResponseDto)
 
-
+router.add_api_route("/sync",
+                     project_api.sync_project,
+                     methods=["get"],
+                     name="同步项目",
+                     response_model=ResponseDto)
 
 router.add_api_route("/detail",
                      project_api.project_detail,
