@@ -6,6 +6,7 @@
 
 import os
 from app.crud.project.ProjectDao import ProjectDao
+from app.crud.case.CaseDao import CaseDao
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole
 from app.commons.settings.config import FilePath
@@ -119,4 +120,14 @@ def sync_project_logic(id: int):
     # step3 解析apidoc数据入库，暂时先返回api_data.json数据
     api_data = api_doc.parse_apidoc()
 
-    return api_data
+    # step4 获取该项目的所有造数场景
+    from fastapi.encoders import jsonable_encoder
+    project_cases = CaseDao.get_projet_case(project.id)
+    project_cases = jsonable_encoder(project_cases)
+
+    # step5 处理同步数据
+    msg_dict = api_doc.sync_data(project.id, api_data, project_cases, user)
+
+    # step6 处理同步消息
+    msg = api_doc.sync_msg(**msg_dict)
+    return msg

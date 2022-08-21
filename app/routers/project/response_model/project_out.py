@@ -36,3 +36,20 @@ class RoleDto(BaseDto):
     user_id: int
     create_name: str
     create_time: datetime
+
+class CaseDto(BaseDto):
+    id: int
+    title: str = None
+    name: str = None
+    description: str = None
+    group_name: str = None
+    header: str = None
+    owner: str = None
+    path: str = None
+    param_in: str = None
+    param_out: str = None
+    example_param_in: str = None
+    example_param_out: str = None
+
+class CaseListDto(BaseDto):
+    data: CaseDto

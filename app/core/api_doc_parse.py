@@ -8,6 +8,7 @@ import json
 from loguru import logger
 from app.commons.utils.cmd_utils import CmdUtils
 from app.commons.exceptions.global_exception import BusinessException
+from app.crud.case.CaseDao import CaseDao
 
 
 
@@ -238,7 +239,7 @@ class ApiDocParse(object):
         return json.dumps(tree_params, ensure_ascii=False)
 
     @staticmethod
-    def __find_son_params(pk, params_list, link_list):
+    def __find_son_params(pk: str, params_list: list, link_list: list) -> list:
         """
         找出子
         :param pk: 父参数
@@ -260,10 +261,84 @@ class ApiDocParse(object):
                     link_list.append(param['id'])
         return son_params
 
+    @staticmethod
+    def find_record_in_list(target_list: list, key: str, value: str) -> dict:
+        """
+        遍历数组, 找出函数名对应的数据, 函数名不能重复
+        :param target_list:
+        :param key:
+        :param value:
+        :return:
+        """
+        result = None
+        for target in target_list:
+            if key in target.keys():
+                if target[key] == value:
+                    result = target
+                    break
+        return result
 
-if __name__ == '__main__':
-    from app.core.get_project_path import ProjectPath
-    project_path, cases_path = ProjectPath.get('funcase', 'case')
-    apidoc = ApiDocParse(project_path, cases_path)
-    data = apidoc.parse_apidoc()
-    print(json.dumps(data, ensure_ascii=False))
+    @exception_log
+    def sync_data(self, project_id: int, apidoc_list: list, model_data: list, user: dict) -> dict:
+        """
+        同步apidoc数据
+        :param project_id: 项目id
+        :param apidoc_list: apidoc数据
+        :param model_data: 表数据
+        :param user: 用户数据
+        :return:
+        """
+        update_list = []
+        add_list = []
+        delete_list = []
+        for case in apidoc_list:
+            # 以apidoc数据为准, 通过函数名, 查找匹配数据
+            match_data = self.find_record_in_list(model_data, 'name', case['name'])
+            # 匹配到了
+            if match_data:
+                # 比对前, 先删除造数场景的主键id
+                cases_id = match_data.pop('id')
+                # 数据没有变化, 不同步
+                if case == match_data:
+                    msg = f"不同步数据场景: {case['name']} | {case['title']}"
+                    self.log.info(msg)
+                    pass
+                # 数据有变化, 同步数据, 以解析的数据为准
+                else:
+                    update_list.append(case['title'])
+                    for k in case.keys():
+                        match_data[k] = case[k]
+                    CaseDao.update_case(cases_id=cases_id, user=user, **match_data)
+            else:
+                add_list.append(case['title'])
+                CaseDao.insert_case(project_id=project_id, user=user, **case)
+
+        for case in model_data:
+            # 以数据库数据为准, 通过函数名, 查找匹配数据
+            match_data = self.find_record_in_list(apidoc_list, 'name', case['name'])
+            # 匹配到了, pass
+            if match_data:
+                pass
+            # 匹配不到, 证明最新的apidoc数据里没有这条数据
+            else:
+                cases_id = case['id']
+                CaseDao.delete_case(cases_id, user)
+                delete_list.append(case['title'])
+
+        return dict(add=add_list, update=update_list, delete=delete_list)
+
+    @exception_log
+    def sync_msg(self, add: list, update: list, delete: list) -> str:
+        """
+        处理同步消息
+        :param add: 新增列表
+        :param update: 更新列表
+        :param delete: 删除列表
+        :return:
+        """
+        add_msg = '' if len(add) == 0 else f"""<p><span style="color: #67c23a;font-weight: bold">新增{len(add)}个造数场景: {'、'.join(add)}</span></p>"""
+        update_msg = '' if len(update) == 0 else f"""<p><span style="color: #e6a23c;font-weight: bold">更新{len(update)}个造数场景: {'、'.join(update)}</span></p>"""
+        delete_msg = '' if len(delete) == 0 else f"""<p><span style="color: #f56c6c;font-weight: bold">删除{len(delete)}个造数场景: {'、'.join(delete)}</span></p>"""
+        msg_list = [add_msg, update_msg, delete_msg]
+        msg_list = [i for i in msg_list if i != '']
+        return ''.join(msg_list) if msg_list else """<p><span style="color: #409eff;font-weight: bold">数据已是最新的了! 无需同步! </span></p>"""

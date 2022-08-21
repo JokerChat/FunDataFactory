@@ -42,6 +42,7 @@ class BaseCrud(object):
 
     model: Type[FunBaseModel] = None
 
+
     @classmethod
     @connect
     def get_with_params(cls, session = Session(), *, filter_list: list = None, _sort: list = None, _fields: Type[BaseDto] = None, **kwargs):
@@ -178,13 +179,17 @@ class BaseCrud(object):
         :param not_null: not_null=True 只有非空字段才更新数据
         :return:
         """
-        if model is None:
-            model = [BaseBody, dict]
-        query = cls.query_wrapper(session, id=model.id)
+        if isinstance(model, dict):
+            id = model['id']
+            model_dict = model
+        else:
+            id = model.id
+            model_dict = vars(model)
+        query = cls.query_wrapper(session, id=id)
         query_obj = query.first()
         if query_obj is None:
             raise BusinessException("数据不存在")
-        for var, value in vars(model).items():
+        for var, value in model_dict.items():
             # 如果value是枚举值，得通过xxx.value获取值
             if isinstance(value, Enum): value = value.value
             if not_null:
