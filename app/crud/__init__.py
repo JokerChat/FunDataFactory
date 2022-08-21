@@ -8,7 +8,7 @@
 
 
 from app.models.base import FunBaseModel
-from typing import Type
+from typing import Type, Union
 from loguru import logger
 from app.commons.exceptions.global_exception import BusinessException
 from app.commons.requests.request_model import BaseBody
@@ -169,7 +169,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def update_by_id(cls, session: Session(), *, model: Type[BaseBody], user: dict=None,  not_null = False):
+    def update_by_id(cls, session: Session(), *, model: Union[dict, BaseBody], user: dict=None, not_null = False):
         """
         通过主键id更新数据
         :param session: 会话
@@ -178,6 +178,8 @@ class BaseCrud(object):
         :param not_null: not_null=True 只有非空字段才更新数据
         :return:
         """
+        if model is None:
+            model = [BaseBody, dict]
         query = cls.query_wrapper(session, id=model.id)
         query_obj = query.first()
         if query_obj is None:
