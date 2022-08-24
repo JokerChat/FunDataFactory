@@ -92,7 +92,7 @@ class ProjectDao(BaseCrud):
                                                        project_name = f"%{search}%" if search else None)
         return total, project_infos
 
-
+    # todo 获取本人权限范围内的所有项目，用于同步场景
     @classmethod
     def user_all_projects(cls, user):
         filter_list = []

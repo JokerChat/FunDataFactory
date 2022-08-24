@@ -4,6 +4,7 @@
 # @File : main.py
 
 from app import fun, init_logging, register_routers, register_middlewares, create_global_exception_handler
+from app.logic.project_logic.project_logic import start_init_project_logic
 from loguru import logger
 
 
@@ -27,9 +28,12 @@ async def startup_event():
     logger.info('exceptionHandler is register success！！！')
 
     from app.models import Base, engine
-    # 向数据库发出建表完成类与表的映射
+    # step5 向数据库发出建表完成类与表的映射
     Base.metadata.create_all(engine)
     logger.info('db is init success！！！')
 
+    # step6 初始化项目
+    start_init_project_logic()
+    logger.info('project is init success！！！')
 
     logger.info('FunDataFactory is start success！！！')

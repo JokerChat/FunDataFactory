@@ -104,6 +104,35 @@ def project_detail_logic(id: int):
     setattr(project, 'rsa_pub_key', rsa_pub_key)
     return project
 
+def start_init_project_logic():
+    projects = ProjectDao.get_with_params()
+    for project in projects:
+        try:
+            if project.pull_type == PullTypeEnum.http.value:
+                # 拉取项目
+                Git.git_clone_http(project.git_branch, project.git_url, project.git_account,
+                                   AesUtils.decrypt(project.git_password))
+            else:
+                Git.git_clone_ssh(project.git_branch, project.git_url)
+        except Exception as e:
+            from loguru import logger
+            logger.error(str(e))
+            logger.error(f"{project.git_project} 项目已存在！！！")
+
+
+def str_to_int(_a: int):
+    print(int(_a))
+
+def demo():
+    from concurrent.futures import ThreadPoolExecutor, as_completed, ALL_COMPLETED, wait
+    int_list = [1,2,'jie','2']
+    with ThreadPoolExecutor(max_workers=len(int_list)) as ts:
+        all_task = []
+        for id_ in int_list:
+            all_task.append(ts.submit(str_to_int, id_))
+        wait(all_task, return_when=ALL_COMPLETED)
+
+# todo git webhook同步项目
 def sync_project_logic(id: int):
     # 记录是谁同步脚本，顺便判断一下权限
     user = REQUEST_CONTEXT.get().user
