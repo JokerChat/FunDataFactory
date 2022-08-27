@@ -5,7 +5,8 @@
 
 
 import os
-from app.crud.project.ProjectDao import ProjectDao
+from concurrent.futures import ThreadPoolExecutor, ALL_COMPLETED, wait
+from app.crud.project.ProjectDao import ProjectDao, DataFactoryProject
 from app.crud.case.CaseDao import CaseDao
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole
@@ -86,9 +87,14 @@ def init_project_logic(id: int):
     project_path = os.path.join(FilePath.BASE_DIR, project.git_project)
     if os.path.isdir(project_path):
         raise BusinessException("项目已存在, 请执行刷新项目！")
+    init_project(project)
+
+
+def init_project(project: DataFactoryProject):
     # 拉取项目
     if project.pull_type == PullTypeEnum.http.value:
-        Git.git_clone_http(project.git_branch, project.git_url, project.git_account, AesUtils.decrypt(project.git_password))
+        Git.git_clone_http(project.git_branch, project.git_url, project.git_account,
+                           AesUtils.decrypt(project.git_password))
     else:
         Git.git_clone_ssh(project.git_branch, project.git_url)
 
@@ -106,31 +112,12 @@ def project_detail_logic(id: int):
 
 def start_init_project_logic():
     projects = ProjectDao.get_with_params()
-    for project in projects:
-        try:
-            if project.pull_type == PullTypeEnum.http.value:
-                # 拉取项目
-                Git.git_clone_http(project.git_branch, project.git_url, project.git_account,
-                                   AesUtils.decrypt(project.git_password))
-            else:
-                Git.git_clone_ssh(project.git_branch, project.git_url)
-        except Exception as e:
-            from loguru import logger
-            logger.error(str(e))
-            logger.error(f"{project.git_project} 项目已存在！！！")
-
-
-def str_to_int(_a: int):
-    print(int(_a))
-
-def demo():
-    from concurrent.futures import ThreadPoolExecutor, as_completed, ALL_COMPLETED, wait
-    int_list = [1,2,'jie','2']
-    with ThreadPoolExecutor(max_workers=len(int_list)) as ts:
+    with ThreadPoolExecutor(max_workers=len(projects)) as ts:
         all_task = []
-        for id_ in int_list:
-            all_task.append(ts.submit(str_to_int, id_))
+        for project in projects:
+            all_task.append(ts.submit(init_project, project))
         wait(all_task, return_when=ALL_COMPLETED)
+
 
 # todo git webhook同步项目
 def sync_project_logic(id: int):

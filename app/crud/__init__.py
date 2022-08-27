@@ -96,8 +96,8 @@ class BaseCrud(object):
         filter_list = filter_list if filter_list else list()
         # 判断表是否有del_flag字段
         if getattr(cls.model, 'del_flag', None) and not not_del:
-            # 默认过滤已删除数据
-            filter_list.append(getattr(cls.model, 'del_flag') == DeleteEnum.yes.value)
+            # 只取未删除的数据
+            filter_list.append(getattr(cls.model, 'del_flag') == DeleteEnum.no.value)
         for k, v in kwargs.items():
             # 过滤None的字段值，注意 0 和 False
             if v is None:
