@@ -44,7 +44,8 @@ async def request_info(request: Request):
                 log_msg += f"请求参数: {body}"
             except:
                 log_msg +="解析json失败"
-        logger.bind(payload=body, name=None).info(log_msg)
+        if log_msg:
+            logger.bind(payload=body, name=None).info(log_msg)
     except:
         try:
             body = await request.body()

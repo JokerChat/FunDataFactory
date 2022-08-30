@@ -7,7 +7,6 @@
 import os
 from concurrent.futures import ThreadPoolExecutor, ALL_COMPLETED, wait
 from app.crud.project.ProjectDao import ProjectDao, DataFactoryProject
-from app.crud.case.CaseDao import CaseDao
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole
 from app.commons.settings.config import FilePath
@@ -66,7 +65,7 @@ def delete_project_role_logic(id: int):
 def project_role_list_logic(project_id: int, page: int=1, limit: int=10, search=None):
     user = REQUEST_CONTEXT.get().user
     roles, count = ProjectRoleDao.project_role_list(user, project_id, page, limit, search)
-    project_role_list = dict(total=count, lists=roles)
+    project_role_list = dict(count=count, lists=roles)
     return project_role_list
 
 
@@ -121,6 +120,7 @@ def start_init_project_logic():
 
 # todo git webhook同步项目
 def sync_project_logic(id: int):
+    from app.crud.case.CaseDao import CaseDao
     # 记录是谁同步脚本，顺便判断一下权限
     user = REQUEST_CONTEXT.get().user
     project = ProjectDao.project_detail(id, user)
@@ -147,3 +147,8 @@ def sync_project_logic(id: int):
     # step6 处理同步消息
     msg = api_doc.sync_msg(**msg_dict)
     return msg
+
+def sync_project_list_logic():
+    user = REQUEST_CONTEXT.get().user
+    project = ProjectDao.get_user_all_projects(user)
+    return project

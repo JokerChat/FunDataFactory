@@ -20,6 +20,10 @@ class IntEnum(int, BaseEnum):
     """整型枚举"""
     pass
 
+class StrEnum(str, BaseEnum):
+    """字符串枚举"""
+    pass
+
 class PermissionEnum(IntEnum):
     members = 0 # 普通用户
     leader = 1 # 组长
@@ -36,3 +40,9 @@ class ProjectRoleEnum(IntEnum):
 class PullTypeEnum(IntEnum):
     http = 0
     ssh = 1
+
+class ShowEnum(StrEnum):
+    my = "my"
+    like = "like"
+    collection = "collection"
+    all = "all"

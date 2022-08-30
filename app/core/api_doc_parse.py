@@ -8,7 +8,6 @@ import json
 from loguru import logger
 from app.commons.utils.cmd_utils import CmdUtils
 from app.commons.exceptions.global_exception import BusinessException
-from app.crud.case.CaseDao import CaseDao
 
 
 
@@ -288,6 +287,7 @@ class ApiDocParse(object):
         :param user: 用户数据
         :return:
         """
+        from app.crud.case.CaseDao import CaseDao
         update_list = []
         add_list = []
         delete_list = []

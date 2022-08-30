@@ -70,3 +70,7 @@ def project_detail(id: int):
 def sync_project(id: int):
     msg = project_logic.sync_project_logic(id)
     return ResponseDto(msg = msg)
+
+def sync_project_list():
+    project = project_logic.sync_project_list_logic()
+    return ResponseDto(data = project)

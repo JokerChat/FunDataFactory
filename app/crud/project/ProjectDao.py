@@ -8,7 +8,7 @@ from app.models import Session
 from app.models.project import DataFactoryProject
 from app.models.user import DataFactoryUser
 from app.routers.project.request_model.project_in import AddProject, EditProject
-from app.routers.project.response_model.project_out import ProjectListDto
+from app.routers.project.response_model.project_out import ProjectListDto, ProjectSyncDto
 from app.commons.exceptions.global_exception import BusinessException
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from app.constants.enums import PermissionEnum
@@ -94,7 +94,12 @@ class ProjectDao(BaseCrud):
 
     # todo 获取本人权限范围内的所有项目，用于同步场景
     @classmethod
-    def user_all_projects(cls, user):
+    def user_all_projects(cls, user: dict):
+        """
+        权限范围内条件
+        :param user: 用户数据
+        :return:
+        """
         filter_list = []
         # 如果不是管理员角色
         if user['role'] != PermissionEnum.admin.value:
@@ -104,6 +109,17 @@ class ProjectDao(BaseCrud):
             filter_list.append(or_(DataFactoryProject.id.in_(project_ids), DataFactoryProject.owner == user['username'],
                                    DataFactoryProject.private == False))
         return filter_list
+
+    @classmethod
+    def get_user_all_projects(cls, user: dict):
+        """
+        获取用户权限范围内的所有项目
+        :param user: 用户数据
+        :return:
+        """
+        project_data = cls.get_with_params(filter_list = [ *cls.user_all_projects(user) ],
+                                           _fields = ProjectSyncDto)
+        return project_data
 
     @classmethod
     def project_detail(cls, id: int, user: dict) -> DataFactoryProject:
