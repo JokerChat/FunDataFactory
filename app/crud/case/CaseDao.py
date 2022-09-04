@@ -264,6 +264,18 @@ class CaseDao(BaseCrud):
                 raise BusinessException("场景不存在")
             return case
 
+    @classmethod
+    def delete_project_case(cls, session: Session, project_id: int, user: dict) -> list:
+        """
+        删除所有造数场景
+        :param session: 数据库会话
+        :param project_id: 项目id
+        :param user: 用户数据
+        :return:
+        """
+        filter_list = [DataFactoryCases.project_id == project_id]
+        cases = cls.update_by_map(session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
+        return [i.id for i in cases]
 
 class CaseParamsDao(BaseCrud):
     log = logger
@@ -346,3 +358,10 @@ class CaseParamsDao(BaseCrud):
         total, params_infos = cls.get_with_pagination(page = page, limit = limit, _fields = CasesParamsDto,
                                                       cases_id = cases_id)
         return total, params_infos
+
+    @classmethod
+    def delete_all_params(cls, session: Session, cases_id: list, user: dict):
+        filter_list = [
+            DataFactoryCasesParams.cases_id.in_(cases_id)
+        ]
+        cls.update_by_map(session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)

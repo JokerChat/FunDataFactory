@@ -50,9 +50,11 @@ class UserDao(BaseCrud):
         if user_obj.is_valid:
             # is_valid == true, 说明被冻结了
             raise BusinessException("对不起, 你的账号已被冻结, 请联系管理员处理")
-        filter_list = [DataFactoryUser.username == body.username,
-                                 DataFactoryUser.password == body.password]
-        user = cls.update_by_map(filter_list=filter_list, last_login_time = datetime.now())
+        update_map = {
+            "id": user_obj.id,
+           "last_login_time":  datetime.now()
+        }
+        user = cls.update_by_id(model = update_map)
         return user
 
 

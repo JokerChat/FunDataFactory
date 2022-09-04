@@ -17,10 +17,12 @@ from app.constants.enums import PullTypeEnum
 from app.commons.exceptions.global_exception import BusinessException
 from app.core.get_project_path import ProjectPath
 from app.core.api_doc_parse import ApiDocParse
+from app.commons.utils.cmd_utils import CmdUtils
 
 
 
 def insert_project_logic(body: AddProject):
+    # todo: git_project不能与后端服务的所有目录名重名
     user = REQUEST_CONTEXT.get().user
     ProjectDao.insert_project(body, user)
 
@@ -32,9 +34,11 @@ def update_project_logic(body: EditProject):
 
 def delete_project_logic(id: int):
     user = REQUEST_CONTEXT.get().user
-    # todo: 暂时用不到，用_占坑，后续加入后置操作
-    _ = ProjectDao.delete_project(id, user)
-
+    project = ProjectDao.delete_project(id, user)
+    import os
+    project_path = os.path.join(FilePath.BASE_DIR, project.git_project)
+    if os.path.isdir(project_path):
+        CmdUtils.cmd(f"rm -rf {project_path}\n")
 
 
 def get_project_lists_logic(page: int=1, limit: int=10, search=None):
@@ -111,11 +115,13 @@ def project_detail_logic(id: int):
 
 def start_init_project_logic():
     projects = ProjectDao.get_with_params()
-    with ThreadPoolExecutor(max_workers=len(projects)) as ts:
-        all_task = []
-        for project in projects:
-            all_task.append(ts.submit(init_project, project))
-        wait(all_task, return_when=ALL_COMPLETED)
+    workers = len(projects)
+    if workers > 0:
+        with ThreadPoolExecutor(max_workers=workers) as ts:
+            all_task = []
+            for project in projects:
+                all_task.append(ts.submit(init_project, project))
+            wait(all_task, return_when=ALL_COMPLETED)
 
 
 # todo git webhook同步项目
