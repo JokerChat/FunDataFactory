@@ -4,11 +4,15 @@
 # @File : CasesDao.py
 
 from app.models.cases import DataFactoryCases
+from app.models.project import DataFactoryProject
 from app.models.cases_like import DataFactoryCasesLike
 from app.models.cases_collection import DataFactoryCasesCollection
-from app.routers.cases.response_model.cases_out import CaseDto, CaseGroupDto, CaseSearchDto
+from app.models.cases_params import DataFactoryCasesParams
+from app.routers.cases.response_model.cases_out import CaseDto, CaseGroupDto, CaseSearchDto, CasesParamsDto
+from app.routers.cases.request_model.cases_in import AddCasesParams, EditCasesParmas
 from app.commons.exceptions.global_exception import BusinessException
 from app.crud.project.ProjectDao import ProjectDao
+from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
 from loguru import logger
 from app.crud import BaseCrud
 from sqlalchemy import or_, asc, and_, func, case as case_, distinct
@@ -135,15 +139,15 @@ class CaseDao(BaseCrud):
         return groups
 
     @classmethod
-    def get_search_case(cls, user: dict, search: str):
+    def get_search_case(cls, user: dict, keyword: str):
         """
         模糊搜索用例，用于前端查询
         :param user: 用户数据
-        :param search: 搜索内容
+        :param keyword: 搜索内容
         :return:
         """
         filter_list = []
-        search_str = f"%{search}%"
+        search_str = f"%{keyword}%"
         filter_list.append(or_(DataFactoryCases.name.like(search_str),
                                DataFactoryCases.title.like(search_str),
                                DataFactoryCases.owner.like(search_str),
@@ -238,3 +242,107 @@ class CaseDao(BaseCrud):
             case_infos = case.order_by(asc(DataFactoryCases.id)).limit(limit).offset((page - 1) * limit).all()
             count = case.count()
             return case_infos, count
+
+
+    @classmethod
+    def case_detail_by_id(cls, id: int, user = None):
+        """
+        获取某个造数场景
+        :param id: 用例id
+        :param user: 用户数据
+        :return:
+        """
+        with Session() as session:
+            case = session.query(DataFactoryCases.owner, DataFactoryCases.group_name, DataFactoryCases.description, DataFactoryCases.create_name, DataFactoryCases.create_time, DataFactoryCases.update_time,
+                                 DataFactoryCases.id, DataFactoryCases.path, DataFactoryCases.project_id, DataFactoryCases.name, DataFactoryCases.example_param_in, DataFactoryCases.example_param_out,
+                                 DataFactoryCases.param_in, DataFactoryCases.param_out, DataFactoryCases.title, DataFactoryProject.project_name, DataFactoryProject.git_project, DataFactoryProject.directory).\
+                join(DataFactoryCases, DataFactoryCases.project_id == DataFactoryProject.id).\
+                filter(DataFactoryCases.id == id,DataFactoryCases.del_flag == 0).first()
+            if user:
+                ProjectRoleDao.read_permission(case.project_id, user)
+            if case is None:
+                raise BusinessException("场景不存在")
+            return case
+
+
+class CaseParamsDao(BaseCrud):
+    log = logger
+    model = DataFactoryCasesParams
+
+    @classmethod
+    def insert_cases_params(cls, body: AddCasesParams, out_id: str, user: dict):
+        """
+        新增场景参数组合
+        :param body: 参数组合模型
+        :param out_id: 外链id
+        :param user: 用户数据
+        :return:
+        """
+        with Session() as session:
+            case = session.query(DataFactoryCases).filter(DataFactoryCases.id == body.cases_id,
+                                                          DataFactoryCases.del_flag == 0).first()
+            if not case:
+                raise BusinessException("造数场景不存在！！！")
+            filter_list = [
+                DataFactoryCasesParams.cases_id == body.cases_id,
+                or_(DataFactoryCasesParams.out_id == out_id,
+                    DataFactoryCasesParams.name == body.name,
+                    DataFactoryCasesParams.params == body.params,
+                    )
+            ]
+            result = cls.get_with_existed(session, filter_list = filter_list)
+            if result:
+                raise BusinessException("该参数组合已存在，请重新录入！")
+            cases_params = DataFactoryCasesParams(**body.dict(), out_id = out_id, user = user)
+            cls.insert_by_model(session, model_obj = cases_params)
+
+
+    @classmethod
+    def update_cases_params(cls, body: EditCasesParmas, user: dict):
+        """
+        编辑场景参数组合
+        :param body: 编辑参数组合模型
+        :param user: 用户数据
+        :return:
+        """
+        with Session() as session:
+            case = session.query(DataFactoryCases).filter(DataFactoryCases.id == body.cases_id,
+                                                          DataFactoryCases.del_flag == 0).first()
+            if not case:
+                raise BusinessException("造数场景不存在！！！")
+            param_result = cls.get_with_existed(session, id = body.id)
+            if not param_result: raise BusinessException("参数组合数据不存在！")
+            # 根据名称查出数据
+            params_name = cls.get_with_first(session, name = body.name, cases_id = body.cases_id)
+            # 如果有数据且主键id与请求参数id不相等
+            if params_name is not None and params_name.id != body.id:
+                raise BusinessException("参数组合名称重复, 请重新录入！！！")
+            cls.update_by_id(session, model = body, user = user)
+
+    @classmethod
+    def deleta_cases_params(cls, id: int, user: dict):
+        """
+        删除场景参数组合
+        :param id: 主键id
+        :param user: 用户数据
+        :return:
+        """
+        with Session() as session:
+            param_result = session.query(DataFactoryCasesParams).filter(DataFactoryCasesParams.id == id,
+                                                                        DataFactoryCasesParams.del_flag == 0).first()
+            if param_result is None: raise BusinessException("参数组合数据不存在！")
+
+            cls.delete_by_id(session, id = id, user = user)
+
+    @classmethod
+    def get_cases_params(cls, cases_id: int, page=1, limit=10):
+        """
+        获取某个造数场景的参数组合
+        :param cases_id: 用例id
+        :param page: 页码
+        :param limit: 页码大小
+        :return:
+        """
+        total, params_infos = cls.get_with_pagination(page = page, limit = limit, _fields = CasesParamsDto,
+                                                      cases_id = cases_id)
+        return total, params_infos

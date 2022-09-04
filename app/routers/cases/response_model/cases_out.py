@@ -40,3 +40,21 @@ class CaseListDto(BaseDto):
     collection: bool
     collection_num: int
     update_time: datetime
+
+class CaseDetailDto(CaseDto):
+    project_name: str
+    git_project: str
+    directory: str
+    create_name: str
+    create_time: datetime
+    update_time: datetime
+
+class CasesParamsDto(BaseDto):
+    id: int
+    name: str
+    params: str
+    out_id: str
+    create_name: str
+    update_name: str = None
+    create_time: datetime
+    update_time: datetime = None
