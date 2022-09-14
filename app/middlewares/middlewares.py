@@ -47,8 +47,9 @@ class AuthMiddleware(BaseMiddleware):
     """权限和登录态中间件"""
     async def before_request(self, request: Request):
         """白名单pass"""
-        if str(request.url.path) in config.API_WHITE_LIST:
-            return
+        for api_url in config.API_WHITE_LIST:
+            if str(request.url.path).startswith(api_url):
+                return
         await authentication(request)
 
 class ExceptionMiddleware(BaseHTTPMiddleware):

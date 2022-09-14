@@ -245,7 +245,7 @@ class CaseDao(BaseCrud):
 
 
     @classmethod
-    def case_detail_by_id(cls, id: int, user = None):
+    def case_detail_by_id(cls, id: int, user: dict = None):
         """
         获取某个造数场景
         :param id: 用例id
@@ -276,6 +276,21 @@ class CaseDao(BaseCrud):
         filter_list = [DataFactoryCases.project_id == project_id]
         cases = cls.update_by_map(session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
         return [i.id for i in cases]
+
+    @classmethod
+    def case_detail_by_method(cls, name: str):
+        """
+        根据方法查询case信息
+        :param name: 方法名
+        :return:
+        """
+        with Session() as session:
+            case = session.query(DataFactoryCases.id.label("cases_id"), DataFactoryCases.path, DataFactoryCases.project_id, DataFactoryCases.name.label("method"), DataFactoryProject.git_project.label("project"), DataFactoryProject.directory). \
+                join(DataFactoryCases, DataFactoryCases.project_id == DataFactoryProject.id). \
+                filter(DataFactoryCases.name == name, DataFactoryCases.del_flag == 0).first()
+            if case is None:
+                raise Exception("场景不存在")
+            return case
 
 class CaseParamsDao(BaseCrud):
     log = logger
@@ -365,3 +380,11 @@ class CaseParamsDao(BaseCrud):
             DataFactoryCasesParams.cases_id.in_(cases_id)
         ]
         cls.update_by_map(session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
+
+
+    @classmethod
+    def get_params_detail(cls, out_id: str):
+        """根据外链id获取参数组合信息"""
+        param_result = cls.get_with_first(out_id = out_id)
+        if param_result is None: raise BusinessException("参数组合数据不存在！")
+        return param_result

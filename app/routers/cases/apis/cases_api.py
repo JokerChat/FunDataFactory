@@ -5,7 +5,7 @@
 
 from app.logic.cases_logic import cases_logic
 from app.commons.responses.response_model import ResponseDto, ListResponseDto
-from app.routers.cases.request_model.cases_in import AddCasesParams, EditCasesParmas
+from app.routers.cases.request_model.cases_in import AddCasesParams, EditCasesParmas, RunBody
 
 def like(id : int):
     result = cases_logic.like_logic(id)
@@ -48,3 +48,22 @@ def delete_params(id: int):
 def get_cases_params(cases_id: int, page: int, limit: int):
     params_list = cases_logic.get_cases_params_logic(cases_id, page, limit)
     return ListResponseDto(data = params_list)
+
+def plat_run(body: RunBody):
+    run_data = cases_logic.plat_run_logic(body)
+    return ResponseDto(msg = "运行成功", data = run_data)
+
+def log_list(page: int=1, limit: int=20, group: str = None, project: str = None,
+                   requests_id: str = None, search: str = None, call_type: str = None, run_status: str = None):
+    log_list = cases_logic.log_list_logic(page, limit, group, project, requests_id, search, call_type, run_status)
+    return ListResponseDto(data = log_list)
+
+
+def out_run(id: str):
+    run_data = cases_logic.out_run_logic(id)
+    return ResponseDto(msg="运行成功", data=run_data)
+
+
+def rpc_run(method: str, data: dict):
+    run_data = cases_logic.rpc_run_logic(method, data)
+    return ResponseDto(msg="运行成功", data=run_data)

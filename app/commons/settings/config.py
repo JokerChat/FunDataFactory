@@ -64,7 +64,9 @@ API_WHITE_LIST = [
     '/openapi.json',
     '/redoc',
     '/api/user/register',
-    '/api/user/login'
+    '/api/user/login',
+    '/api/cases/out',
+    '/api/cases/rpc/'
 ]
 
 API_ADMIN_LIST = [

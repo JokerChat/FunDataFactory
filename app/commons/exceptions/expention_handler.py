@@ -41,7 +41,7 @@ async def body_validation_exception_handler(request: Request, err: RequestValida
 
 # 业务异常处理器
 async def business_exception_handler(request: Request, exc: BusinessException):
-    res = ResponseDto(code=exc.code, msg=exc.msg)
+    res = ResponseDto(code=exc.code, msg=exc.msg, data=exc.data)
     return JSONResponse(content=res.dict())
 
 # 权限异常处理器

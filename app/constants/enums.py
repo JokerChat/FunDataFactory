@@ -46,3 +46,13 @@ class ShowEnum(StrEnum):
     like = "like"
     collection = "collection"
     all = "all"
+
+class RunStatusEnum(IntEnum):
+    success = 0
+    exception = 1
+    fail = 2
+
+class CallTypeEnum(IntEnum):
+    plat = 0
+    out = 1
+    rpc = 2

@@ -5,16 +5,18 @@
 
 
 from app.commons.responses.response_code import CodeEnum
+from typing import Any
 
 class BusinessException(Exception):
     """业务异常处理类"""
-    def __init__(self, msg: str = CodeEnum.BUSINESS_ERROR.msg) -> None:
+    def __init__(self, msg: str = CodeEnum.BUSINESS_ERROR.msg, data: Any = None) -> None:
         """
         初始化类
         :param msg: 错误信息
         """
         self.code = CodeEnum.BUSINESS_ERROR.code
         self.msg = msg
+        self.data = data
 
 
 

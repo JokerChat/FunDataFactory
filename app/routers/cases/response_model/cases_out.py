@@ -42,6 +42,7 @@ class CaseListDto(BaseDto):
     update_time: datetime
 
 class CaseDetailDto(CaseDto):
+    project_id: int
     project_name: str
     git_project: str
     directory: str
@@ -58,3 +59,27 @@ class CasesParamsDto(BaseDto):
     update_name: str = None
     create_time: datetime
     update_time: datetime = None
+
+class CasesRunDto(BaseDto):
+    actual_request: dict
+    actual_response: dict
+    result: int
+    requests_id: str
+    cost: str
+
+
+class LogListDto(BaseDto):
+    requests_id: str
+    run_param_in: str
+    run_param_out: str = None
+    call_type: int
+    run_status: int
+    run_log: str
+    title: str
+    name: str
+    group_name: str
+    path: str
+    project_name: str
+    directory: str
+    create_name: str
+    create_time: datetime
