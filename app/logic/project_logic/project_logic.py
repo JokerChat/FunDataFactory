@@ -8,16 +8,18 @@ import os
 from concurrent.futures import ThreadPoolExecutor, ALL_COMPLETED, wait
 from app.crud.project.ProjectDao import ProjectDao, DataFactoryProject
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
-from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole
+from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole, GitProject
 from app.commons.settings.config import FilePath
 from app.core.git import Git
-from app.commons.utils.aes_utils import AesUtils
+from app.commons.utils.encrypt_utils import AesUtils, Sha256
 from app.commons.utils.context_utils import REQUEST_CONTEXT
-from app.constants.enums import PullTypeEnum
+from app.constants.enums import PullTypeEnum, SysEnum
 from app.commons.exceptions.global_exception import BusinessException
 from app.core.get_project_path import ProjectPath
 from app.core.api_doc_parse import ApiDocParse
 from app.commons.utils.cmd_utils import CmdUtils
+from starlette.requests import Request
+from app.constants import constants
 
 
 
@@ -123,14 +125,31 @@ def start_init_project_logic():
                 all_task.append(ts.submit(init_project, project))
             wait(all_task, return_when=ALL_COMPLETED)
 
+def check_gitee(request: Request):
+    # 这个验签可以用中间件做，但是溜达哥说中间件太耗性能了，最好用依赖注入的形式，溜达哥yyds
+    # 中间件很耗性能的-->fastapi 原作者，starlette的锅...
+    headers = request.headers
+    user_agent = headers.get('user-agent')
+    if user_agent and user_agent == constants.USER_AGENT:
+        gitee_timestamp = headers.get('x-gitee-timestamp')
+        gitee_token = headers.get('x-gitee-token')
+        if gitee_timestamp and gitee_token and Sha256.encrypt(str(gitee_timestamp)) == gitee_token:
+            return True
+        else:
+            raise BusinessException("验签有误！！！")
+    else:
+        raise BusinessException("验签有误！！！")
 
-# todo git webhook同步项目
-def sync_project_logic(id: int):
+
+def sync_project_logic(type: str, user: dict, id: int = None, project_name: str = None):
     from app.crud.case.CaseDao import CaseDao
-    # 记录是谁同步脚本，顺便判断一下权限
-    user = REQUEST_CONTEXT.get().user
-    project = ProjectDao.project_detail(id, user)
-
+    if type == SysEnum.platform.value:
+        # 记录是谁同步脚本，顺便判断一下权限
+        project = ProjectDao.project_detail(id, user)
+    elif type == SysEnum.git.value:
+        project = ProjectDao.project_detail_by_git(project_name)
+    else:
+        raise BusinessException('同步失败, 不支持该类型')
     # step1 git pull 更新项目
     project_path, script_path = ProjectPath.get(project.git_project, project.directory)
     Git.git_pull(project_path, project.git_branch)
@@ -146,12 +165,26 @@ def sync_project_logic(id: int):
     from fastapi.encoders import jsonable_encoder
     project_cases = CaseDao.get_projet_case(project.id)
     project_cases = jsonable_encoder(project_cases)
-
     # step5 处理同步数据
     msg_dict = api_doc.sync_data(project.id, api_data, project_cases, user)
 
     # step6 处理同步消息
     msg = api_doc.sync_msg(**msg_dict)
+
+    return msg
+
+def sync_project_logic_by_platform(id: int):
+    user = REQUEST_CONTEXT.get().user
+    msg = sync_project_logic(type = SysEnum.platform.value, user = user, id = id)
+    return msg
+
+def sync_project_logic_by_git(data: GitProject):
+    # 如果是公司的gitlab平台，可以去除这段代码...
+    request_ = REQUEST_CONTEXT.get()
+    ant = check_gitee(request_)
+    if not ant:
+        raise BusinessException("验签有误！！！")
+    msg = sync_project_logic(type = SysEnum.git.value, project_name=data.project.name, user=constants.ADMIN)
     return msg
 
 def sync_project_list_logic():

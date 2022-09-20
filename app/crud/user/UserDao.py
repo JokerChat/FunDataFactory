@@ -99,3 +99,9 @@ class UserDao(BaseCrud):
             raise BusinessException("用户不存在")
         # not_null=True 只有非空字段才更新数据
         cls.update_by_id(model = body, user=user_data, not_null=True)
+
+    @classmethod
+    def user_summary(cls):
+        """统计用户数量"""
+        user_sum = cls.get_with_count()
+        return user_sum

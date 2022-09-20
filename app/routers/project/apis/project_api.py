@@ -3,7 +3,7 @@
 # @Author : junjie
 # @File : project_api.py
 
-from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole
+from app.routers.project.request_model.project_in import AddProject, EditProject, AddProjectRole, EditProjectRole, GitProject
 from app.commons.responses.response_model import ResponseDto, ListResponseDto
 from app.logic.project_logic import project_logic
 
@@ -68,9 +68,13 @@ def project_detail(id: int):
     return ResponseDto(data = project)
 
 def sync_project(id: int):
-    msg = project_logic.sync_project_logic(id)
+    msg = project_logic.sync_project_logic_by_platform(id)
     return ResponseDto(msg = msg)
 
 def sync_project_list():
     project = project_logic.sync_project_list_logic()
     return ResponseDto(data = project)
+
+def sync_project_by_git(body: GitProject):
+    msg = project_logic.sync_project_logic_by_git(body)
+    return ResponseDto(msg = msg)

@@ -3,11 +3,12 @@
 # @Author : junjie
 # @File : aes_utils.py
 
-import base64
+import base64, hmac
 from Crypto.Cipher import AES
 from app.constants import constants
+from hashlib import sha256
 
-class AesUtils:
+class AesUtils(object):
 
     @classmethod
     def add_to_16(cls, value):
@@ -51,6 +52,17 @@ class AesUtils:
         decrypted_text = aes.decrypt(base64_decrypted).decode()
         unpad = lambda s: s[0:-ord(s[-1])]
         return unpad(decrypted_text)
+
+
+class Sha256(object):
+
+    @classmethod
+    def encrypt(cls, timestamp: str):
+        secret = constants.SECRET
+        data = f"{timestamp}\n{secret}"
+        sign = base64.b64encode(
+            hmac.new(secret.encode('utf-8'), data.encode('utf-8'), digestmod=sha256).digest()).decode()
+        return sign
 
 if __name__ == '__main__':
     # 加密

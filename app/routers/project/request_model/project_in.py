@@ -39,7 +39,7 @@ class AddProject(BaseBody):
     def check_pwd(cls, v, values, **kwargs):
         if 'pull_type' in values and values['pull_type'] == 0:
             v = ToolsSchemas.not_empty(v)
-            from app.commons.utils.aes_utils import AesUtils
+            from app.commons.utils.encrypt_utils import AesUtils
             return AesUtils.encrypt(v)
         return v
 
@@ -68,3 +68,9 @@ class EditProjectRole(BaseBody):
     @validator('id', 'project_role')
     def id_not_empty(cls, v):
         return ToolsSchemas.not_empty(v)
+
+class ProjectName(BaseBody):
+    name: str = Field(..., title="项目名称", description="必传")
+
+class GitProject(BaseBody):
+    project: ProjectName

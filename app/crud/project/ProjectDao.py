@@ -134,3 +134,17 @@ class ProjectDao(BaseCrud):
         if project is None:
             raise BusinessException("项目不存在")
         return project
+
+    @classmethod
+    def project_detail_by_git(cls, name: str):
+        """获取项目详情"""
+        project = cls.get_with_first(git_project = name)
+        if project is None:
+            raise Exception("项目不存在")
+        return project
+
+    @classmethod
+    def project_summary(cls):
+        """统计项目数量"""
+        project_sum = cls.get_with_count()
+        return project_sum

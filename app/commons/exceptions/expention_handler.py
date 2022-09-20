@@ -13,6 +13,7 @@ from app.commons.exceptions.global_exception import BusinessException, AuthExcep
 from pydantic import ValidationError
 from app.commons.responses.response_code import CodeEnum
 from loguru import logger
+import json
 
 
 # 自定义http异常处理器
@@ -36,12 +37,14 @@ async def body_validation_exception_handler(request: Request, err: RequestValida
                 field = str(error.get('loc')[-1])
                 _msg = error.get("msg")
                 message += f"{data.get(field, field)}{_msg},"
+        elif isinstance(raw_error.exc, json.JSONDecodeError):
+            message += 'json解析失败! '
     res = ResponseDto(code=CodeEnum.PARAMS_ERROR.code, msg=f"请求参数非法!{message[:-1]}")
     return JSONResponse(content=res.dict())
 
 # 业务异常处理器
 async def business_exception_handler(request: Request, exc: BusinessException):
-    res = ResponseDto(code=exc.code, msg=exc.msg, data=exc.data)
+    res = ResponseDto(code=exc.code, msg=exc.msg)
     return JSONResponse(content=res.dict())
 
 # 权限异常处理器

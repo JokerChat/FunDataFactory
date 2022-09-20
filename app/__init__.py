@@ -58,8 +58,8 @@ async def request_info(request: Request):
 
 
 async def register_routers(_app: FastAPI):
-    for item in routers.data:
-        _app.include_router(item[0], prefix=item[1], tags=item[2], dependencies=[Depends(request_context), Depends(request_info)])
+    for router in routers.data_:
+        _app.include_router(router.module, prefix=router.prefix, tags=router.tags, dependencies=[Depends(request_context), Depends(request_info)])
 
 async def register_middlewares(_app: FastAPI):
     """注册中间件，注意中间件的注册顺序"""

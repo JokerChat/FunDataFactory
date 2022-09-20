@@ -66,7 +66,8 @@ API_WHITE_LIST = [
     '/api/user/register',
     '/api/user/login',
     '/api/cases/out',
-    '/api/cases/rpc/'
+    '/api/cases/rpc/',
+    '/api/project/gitSync'
 ]
 
 API_ADMIN_LIST = [

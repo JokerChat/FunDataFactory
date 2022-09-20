@@ -19,6 +19,7 @@ from sqlalchemy import or_, asc, and_, func, case as case_, distinct
 from sqlalchemy.orm import aliased
 from app.models import Session
 from app.constants.enums import DeleteEnum, ShowEnum
+from datetime import datetime
 
 class CaseDao(BaseCrud):
 
@@ -291,6 +292,41 @@ class CaseDao(BaseCrud):
             if case is None:
                 raise Exception("场景不存在")
             return case
+
+    @classmethod
+    def case_summary(cls):
+        """统计场景数量"""
+        case_sum = cls.get_with_count()
+        return case_sum
+
+    @classmethod
+    def case_group_summary(cls):
+        """统计各业务线数量"""
+        with Session() as session:
+            group_num = session.query(DataFactoryCases.group_name.label("name"), func.count(DataFactoryCases.id).label("value"))\
+                .filter(DataFactoryCases.del_flag == 0)\
+                .group_by(DataFactoryCases.group_name)
+            return group_num.all()
+
+    @classmethod
+    def get_group_name(cls):
+        """所有业务数"""
+        with Session() as session:
+            filter_list = [DataFactoryCases.del_flag == 0]
+            query = session.query(DataFactoryCases.group_name).filter(*filter_list)
+            groups = query.group_by(DataFactoryCases.group_name).all()
+            return groups
+
+    @classmethod
+    def collect_weekly_data(cls, start_time: datetime, end_time: datetime):
+        """统计最近7天场景创建量"""
+        with Session() as session:
+            date = func.date_format(DataFactoryCases.create_time, "%Y-%m-%d")
+            weekly_data = session.query(date.label("date"), func.count(DataFactoryCases.id).label("sum"))\
+                .filter(DataFactoryCases.del_flag ==0, DataFactoryCases.create_time.between(start_time.strftime("%Y-%m-%d 00:00:00"), end_time.strftime("%Y-%m-%d 23:59:59"))).\
+                group_by(date).order_by(asc(date))
+            data = {i[0]:i[1] for i in weekly_data.all()}
+            return data
 
 class CaseParamsDao(BaseCrud):
     log = logger

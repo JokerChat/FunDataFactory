@@ -11,9 +11,9 @@ from app.crud.log.LogDao import LogDao
 from app.crud.operation.OperationDao import LikeOperationDao, CollectionOperationDao
 from app.routers.cases.request_model.cases_in import AddCasesParams, EditCasesParmas, RunBody
 from app.core.run_script import RunScript
-from app.commons.exceptions.global_exception import BusinessException
 from app.constants.enums import RunStatusEnum, CallTypeEnum
 from app.constants import constants
+from datetime import datetime
 
 def like_logic(id : int):
     user = REQUEST_CONTEXT.get().user
@@ -68,25 +68,35 @@ def get_cases_params_logic(cases_id: int, page: int, limit: int):
 
 def run_logic(body: RunBody, call_type: CallTypeEnum, user: dict):
     start_time = time.perf_counter()
+    run_log = None
     try:
         run_data = RunScript.run(body.path, body.method, body.params, body.project, body.directory)
-        if run_data.get('responseCode') == 0 or run_data.get('code') == 200 or run_data.get('code') == 0:
-            run_status = RunStatusEnum.success.value
-            # todo 获取造数脚本的运行日志
-            run_log = f'运行{body.method}造数方法成功'
+        if isinstance(run_data, tuple) and len(run_data) == 2:
+            # 默认第一个是脚本返参,第二个为脚本日志
+            run_data, run_log = run_data
+        elif isinstance(run_data, dict):
+            pass
         else:
-            run_status = RunStatusEnum.exception.value
-            run_log = f'运行{body.method}造数方法异常'
+            raise Exception("脚本返参数有误！！！")
+        run_status = RunStatusEnum.success.value  if run_data.get('responseCode') == 0 \
+                                                     or run_data.get('code') == 200 \
+                                                     or run_data.get('code') == 0 \
+            else RunStatusEnum.exception.value
         end_time = time.perf_counter()
         cost = "%.2fs" % (end_time - start_time)
         LogDao.add(body.cases_id, body.requests_id, body.project_id, json.dumps(body.params, ensure_ascii=False), json.dumps(run_data, ensure_ascii=False),
                    run_status=run_status, call_type=call_type, run_log=run_log, user=user)
-        return dict(actual_request=body.params, actual_response=run_data, result = run_status, requests_id = body.requests_id, cost = cost)
-    except Exception as e:
+        return dict(actual_request=body.params, actual_response=run_data, result = run_status, requests_id = body.requests_id, cost = cost, log = run_log)
+    except:
+        import traceback
         run_status = RunStatusEnum.fail.value
+        run_log = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]: 脚本执行失败 -> 脚本目录：{body.project}/{body.directory}/{body.path}.py，执行{body.method}函数失败，kwargs：{body.params}，报错信息：\n{str(traceback.format_exc())}"
         LogDao.add(body.cases_id, body.requests_id, body.project_id, json.dumps(body.params, ensure_ascii=False), run_param_out=None,
-                   run_status=run_status, call_type=call_type, run_log=str(e), user=user)
-        raise BusinessException(str(e), data = dict(requests_id = body.requests_id))
+                   run_status=run_status, call_type=call_type, run_log=run_log, user=user)
+        end_time = time.perf_counter()
+        cost = "%.2fs" % (end_time - start_time)
+        return dict(actual_request=body.params, actual_response=None, result=run_status, requests_id=body.requests_id,
+                    cost=cost, log=run_log)
 
 
 def plat_run_logic(body: RunBody):

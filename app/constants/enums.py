@@ -56,3 +56,7 @@ class CallTypeEnum(IntEnum):
     plat = 0
     out = 1
     rpc = 2
+
+class SysEnum(StrEnum):
+    git = "git"
+    platform = "platform"

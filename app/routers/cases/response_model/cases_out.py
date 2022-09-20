@@ -62,10 +62,11 @@ class CasesParamsDto(BaseDto):
 
 class CasesRunDto(BaseDto):
     actual_request: dict
-    actual_response: dict
+    actual_response: dict = None
     result: int
     requests_id: str
     cost: str
+    log: str = None
 
 
 class LogListDto(BaseDto):
@@ -74,7 +75,7 @@ class LogListDto(BaseDto):
     run_param_out: str = None
     call_type: int
     run_status: int
-    run_log: str
+    run_log: str = None
     title: str
     name: str
     group_name: str
