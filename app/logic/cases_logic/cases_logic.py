@@ -14,6 +14,7 @@ from app.core.run_script import RunScript
 from app.constants.enums import RunStatusEnum, CallTypeEnum
 from app.constants import constants
 from datetime import datetime
+from app.commons.exceptions.global_exception import BusinessException
 
 def like_logic(id : int):
     user = REQUEST_CONTEXT.get().user
@@ -77,7 +78,7 @@ def run_logic(body: RunBody, call_type: CallTypeEnum, user: dict):
         elif isinstance(run_data, dict):
             pass
         else:
-            raise Exception("脚本返参数有误！！！")
+            raise BusinessException("脚本返参数有误！！！")
         run_status = RunStatusEnum.success.value  if run_data.get('responseCode') == 0 \
                                                      or run_data.get('code') == 200 \
                                                      or run_data.get('code') == 0 \
