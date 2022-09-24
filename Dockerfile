@@ -15,7 +15,7 @@ WORKDIR /fun
 COPY . .
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 COPY --from=builder /fun/node-v14.16.1 /usr/local/nodejs
-COPY ./ssh_config /etc/ssh/
+#COPY ./ssh_config /etc/ssh/
 ENV PATH=/usr/local/nodejs/bin:$PATH
 RUN apt update -y \
     && apt upgrade -y \
