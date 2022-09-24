@@ -45,9 +45,12 @@ class FilePath(object):
 
     CRUD_PATH = os.path.join(APP_PATH, "crud")  # curd路径
 
-    RSA_PUB_KEY = os.path.join(SETS_PATH, 'keys/rsa_pub_key')
+    KEYS_FILE_PATH = os.path.join(SETS_PATH, "keys")  # keys路径
+    if not os.path.isdir(KEYS_FILE_PATH): os.mkdir(KEYS_FILE_PATH)
 
-    RSA_PRI_KEY = os.path.join(SETS_PATH, 'keys/rsa_pri_key')
+    RSA_PUB_KEY = os.path.join(KEYS_FILE_PATH, "rsa_pub_key")
+
+    RSA_PRI_KEY = os.path.join(KEYS_FILE_PATH, "rsa_pri_key")
 
 HTTP_MSG_MAP = {
     404 : '请求路径找不到',

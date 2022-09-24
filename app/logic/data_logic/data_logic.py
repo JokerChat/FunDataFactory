@@ -26,7 +26,7 @@ def data_summary_logic():
 
     # 成功率计算
     success_num = LogDao.success_summary()
-    success_rate = success_num / log_num
+    success_rate = success_num / log_num if log_num !=0 else 0
 
     # 各状态分布
     run_type_data = LogDao.run_status_summary()
