@@ -25,7 +25,8 @@ from app.constants import constants
 
 
 
-fun = FastAPI(title=Text.TITLE, version=Text.VERSION, description=Text.DESCRIPTION)
+fun = FastAPI(title=Text.TITLE, version=Text.VERSION, description=Text.DESCRIPTION,
+              docs_url = Text.DOC, redoc_url = Text.REDOC, openapi_url = Text.OPENAPI)
 
 async def request_info(request: Request):
     """获取请求流量信息"""

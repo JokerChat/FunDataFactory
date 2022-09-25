@@ -15,6 +15,7 @@ class Config(object):
     PWD = "root"
     USER = "root"
     DBNAME = "datafactory"
+    PRO = True
 
     # 数据库配置
     SQLALCHEMY_DATABASE_URI: str = f"mysql+pymysql://{USER}:{PWD}@{HOST}:{PORT}/{DBNAME}"
@@ -25,6 +26,9 @@ class Text(object):
     TITLE = "Fun数据工厂"
     VERSION = "v1.0"
     DESCRIPTION = "欢迎来到方总的数据工厂"
+    REDOC = None if Config.PRO else "/redoc"
+    DOC = None if Config.PRO else "/docs"
+    OPENAPI = None if Config.PRO else "/openapi.json"
 
 
 class FilePath(object):
