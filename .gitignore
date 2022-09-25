@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 /.idea
+app/commons/settings/keys/rsa_pub_key
+app/commons/settings/keys/rsa_pri_key
