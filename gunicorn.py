@@ -11,7 +11,7 @@ errorlog = "logs/error.log"
 # 代码改动, 自动重载
 reload = True
 # 是否以守护进程启动
-daemon = True
+daemon = False
 # 请求超时配置
 timeout = 30
 
