@@ -17,7 +17,7 @@ class DataFactoryRunLog(FunBaseModel):
     run_param_out = Column(Text, nullable=True, comment="实际出参")
     call_type = Column(SMALLINT, default=0, nullable=False, comment="调用方式, 0: 平台调用 1: 外链调用")
     run_status = Column(SMALLINT, default=0, nullable=False, comment="运行状态, 0: 运行成功 1: 运行异常 2: 运行失败")
-    run_log = Column(Text, nullable=False, comment="运行日志")
+    run_log = Column(Text, nullable=True, comment="运行日志")
 
     def __init__(self, cases_id, requests_id, project_id, run_param_in, run_param_out, run_status, call_type, run_log, user, del_flag=0, id=None):
         super().__init__(create_id=user['id'], create_name=user['username'], del_flag=del_flag, id=id)

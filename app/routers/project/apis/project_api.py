@@ -7,7 +7,7 @@ from app.routers.project.request_model.project_in import AddProject, EditProject
 from app.commons.responses.response_model import ResponseDto, ListResponseDto
 from app.logic.project_logic import project_logic
 
-
+# todo 包管理工具 poetry管理Python包
 def insert_project(body: AddProject):
     project_logic.insert_project_logic(body)
     return ResponseDto(msg="新增成功")
