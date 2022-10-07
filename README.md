@@ -41,6 +41,7 @@
 
 <details>
 <summary>平台预览</summary>
+
 #### 🍦 数据报表
 
 ![image-20221007112933614](http://static.fangfun.xyz//picture/202210071129659.png)
