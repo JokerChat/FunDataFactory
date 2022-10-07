@@ -139,7 +139,7 @@ class ProjectDao(BaseCrud):
         """获取项目详情"""
         project = cls.get_with_first(git_project = name)
         if project is None:
-            raise Exception("项目不存在")
+            raise BusinessException("项目不存在")
         return project
 
     @classmethod

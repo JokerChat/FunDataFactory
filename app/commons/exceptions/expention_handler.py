@@ -32,7 +32,8 @@ async def body_validation_exception_handler(request: Request, err: RequestValida
             if hasattr(exc, 'model'):
                 fields = exc.model.__dict__.get('__fields__')
                 for field_key in fields.keys():
-                    data[field_key] = fields.get(field_key).field_info.title
+                    field_title =  fields.get(field_key).field_info.title
+                    data[field_key] = field_title if field_title else field_key
             for error in exc.errors():
                 field = str(error.get('loc')[-1])
                 _msg = error.get("msg")
