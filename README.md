@@ -101,7 +101,7 @@ mkdir logs
 # 用来目录挂载
 mkdir keys
 ```
-**备注** keys目录上传刚才本地创建的公钥和私钥，这里我用的是`FinalShell`软件进行上传，如果不需要ssh拉取git项目，可以忽略创建keys目录
+**备注:** keys目录上传刚才本地创建的公钥和私钥，这里我用的是`FinalShell`软件进行上传，如果不需要ssh拉取git项目，可以忽略创建keys目录
 
 
 2. 在server目录git clone项目
@@ -126,7 +126,7 @@ docker run -itd -p 8080:8080 -v /server/logs:/fun/logs -v /server/keys:/fun/app/
 # 前端服务启动
 docker run -itd -p 80:80 fun_web:v1
 ```
-**备注:**记得开放相关的端口，前端的`.env.production`目录记得更换对应的后端api端口
+**备注:** 记得开放相关的端口，前端的`.env.production`目录记得更换对应的后端api端口
 
 ![img](http://static.fangfun.xyz//picture/202210071311540.png)
 
@@ -173,7 +173,7 @@ http {
 这里的`fangfun.xyz`直接映射到了本地的`81`端口即为前端服务，
 `api.fangfun.xyz`为二级域名，直接映射到了本地的`8080`端口即为后端服务
 
-**备注**：前端镜像启动时，映射宿主机的端口为`81`
+**备注:**前端镜像启动时，映射宿主机的端口为`81`
 
 ```shell
 # 前端服务启动
