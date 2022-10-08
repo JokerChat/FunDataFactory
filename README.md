@@ -10,7 +10,7 @@
 - [x] 🎲 Nginx(反向代理)
 
 ### 🏅️ 特约赞助商
-[ 😁 pity项目，快点我](https://github.com/wuranxu/pity)（**说明：**本项目一部分代码借鉴`pity`项目，当然README介绍文档也是😅希望无敌哥看到之后不会`打我`向pity项目Respect😉）
+[ 😁 pity项目，快点我](https://github.com/wuranxu/pity)（ **说明:** 本项目一部分代码借鉴`pity`项目，当然README介绍文档也是😅希望无敌哥看到之后不会`打我`向pity项目Respect😉）
 
 ### ⚽ 前端地址
 
