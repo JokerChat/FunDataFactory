@@ -11,7 +11,7 @@ from app.routers.project.request_model.project_in import AddProject, EditProject
 from app.routers.project.response_model.project_out import ProjectListDto, ProjectSyncDto
 from app.commons.exceptions.global_exception import BusinessException
 from app.crud.project_role.ProjectRoleDao import ProjectRoleDao
-from app.constants.enums import PermissionEnum
+from app.const.enums import PermissionEnum
 from app.crud import BaseCrud
 
 

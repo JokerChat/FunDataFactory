@@ -6,7 +6,7 @@
 from datetime import datetime
 from sqlalchemy import Column, String, INT, DATETIME, SMALLINT, func, Boolean
 from app.models import Base
-from app.constants.enums import PermissionEnum
+from app.const.enums import PermissionEnum
 from app.routers.user.request_model.user_in import RegisterUserBody
 
 class DataFactoryUser(Base):

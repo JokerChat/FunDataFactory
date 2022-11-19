@@ -5,8 +5,8 @@
 
 import hashlib
 from pydantic import validator, Field, EmailStr
-from app.constants import constants
-from app.constants.enums import PermissionEnum
+from app.const import constants
+from app.const.enums import PermissionEnum
 from app.commons.requests.request_model import BaseBody, ToolsSchemas
 
 

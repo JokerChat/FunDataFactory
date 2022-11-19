@@ -6,7 +6,7 @@
 from app.models.cases_like import DataFactoryCasesLike
 from app.models.cases_collection import DataFactoryCasesCollection
 from app.crud import BaseCrud
-from app.constants.enums import DeleteEnum
+from app.const.enums import DeleteEnum
 
 
 class LikeOperationDao(BaseCrud):

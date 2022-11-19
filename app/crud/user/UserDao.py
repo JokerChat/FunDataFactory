@@ -5,7 +5,7 @@
 
 from sqlalchemy import or_
 from app.models.user import DataFactoryUser
-from app.constants.enums import PermissionEnum
+from app.const.enums import PermissionEnum
 from app.routers.user.request_model.user_in import LoginUserBody, UpdateUserBody, SearchUserBody, RegisterUserBody
 from app.routers.user.response_model.user_out import SearchUserDto, UserDto
 from datetime import datetime

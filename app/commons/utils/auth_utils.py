@@ -7,7 +7,7 @@ from app.commons.utils.jwt_utils import UserToken
 from app.commons.utils.context_utils import REQUEST_CONTEXT
 from app.commons.exceptions.global_exception import AuthException, PermissionException
 from starlette.requests import Request
-from app.constants.enums import PermissionEnum
+from app.const.enums import PermissionEnum
 from app.crud.user.UserDao import UserDao
 from app.routers.user.response_model.user_out import UserDto
 

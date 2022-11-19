@@ -17,7 +17,7 @@ from datetime import datetime
 from functools import wraps
 from enum import Enum
 from app.models import Session
-from app.constants.enums import DeleteEnum
+from app.const.enums import DeleteEnum
 
 
 

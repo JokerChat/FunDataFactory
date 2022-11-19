@@ -10,7 +10,7 @@ from app.models.user import DataFactoryUser
 from app.routers.project.request_model.project_in import AddProjectRole, EditProjectRole
 from app.commons.exceptions.global_exception import BusinessException
 from sqlalchemy import desc, or_
-from app.constants.enums import PermissionEnum
+from app.const.enums import PermissionEnum
 from app.crud import BaseCrud
 
 class ProjectRoleDao(BaseCrud):

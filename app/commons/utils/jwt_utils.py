@@ -6,7 +6,7 @@
 import jwt
 from jwt.exceptions import ExpiredSignatureError
 from datetime import timedelta, datetime
-from app.constants import constants
+from app.const import constants
 
 class UserToken(object):
 

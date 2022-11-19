@@ -3,7 +3,7 @@
 # @Author : junjie
 # @File : request_model.py
 from pydantic import BaseModel
-from app.constants.constants import ERROR_MSG_TEMPLATES
+from app.const.constants import ERROR_MSG_TEMPLATES
 
 
 class BaseBody(BaseModel):

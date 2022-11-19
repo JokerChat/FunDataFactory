@@ -3,7 +3,7 @@
 # @Author : junjie
 # @File : response_code.py
 
-from app.constants.enums import BaseEnum
+from app.const.enums import BaseEnum
 
 class CodeEnum(BaseEnum):
     """编码枚举类"""

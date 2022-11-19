@@ -7,7 +7,7 @@
 from pydantic import validator, Field
 from typing import Optional
 from app.commons.requests.request_model import BaseBody, ToolsSchemas
-from app.constants.enums import PullTypeEnum, ProjectRoleEnum
+from app.const.enums import PullTypeEnum, ProjectRoleEnum
 
 
 

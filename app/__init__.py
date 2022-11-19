@@ -21,7 +21,7 @@ from app.commons.utils.auth_utils import request_context
 from app.commons.settings.config import LOGGING_CONF
 from app.commons.settings.config import Text
 from loguru import logger
-from app.constants import constants
+from app.const import constants
 
 
 

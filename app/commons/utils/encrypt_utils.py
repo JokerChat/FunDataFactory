@@ -5,7 +5,7 @@
 
 import base64, hmac
 from Crypto.Cipher import AES
-from app.constants import constants
+from app.const import constants
 from hashlib import sha256
 
 class AesUtils(object):

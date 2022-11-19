@@ -8,7 +8,7 @@ from app.models.run_log import DataFactoryRunLog
 from app.models.cases import DataFactoryCases
 from app.models.project import DataFactoryProject
 from app.crud.case.CaseDao import CaseDao
-from app.constants.enums import RunStatusEnum
+from app.const.enums import RunStatusEnum
 from app.models import Session
 from app.crud import BaseCrud
 from loguru import logger
