@@ -28,15 +28,15 @@ def connect(func):
     @wraps(func)
     def wrapper(cls, *args, **kwargs):
         try:
-            session = kwargs.get("session")
+            session = kwargs.pop("session", None)
             if session is not None:
-                return func(cls, session, *args[1:], **kwargs)
+                return func(cls, session = session, *args, **kwargs)
             with Session() as ss:
-                return func(cls, ss, *args[1:], **kwargs)
+                return func(cls, session = ss, *args, **kwargs)
         except Exception as e:
             import traceback
             logger.exception(traceback.format_exc())
-            logger.error(f"操作{cls.model.__name__}失败, error: {e}")
+            logger.error(f"操作{cls.model.__name__}失败, args：{[*args]}, kwargs：{kwargs}, {func.__name__}方法报错: {e}")
             raise BusinessException(f"操作数据库失败: {e}")
     return wrapper
 
@@ -48,7 +48,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def get_with_params(cls, session: Session, *, filter_list: list = None,
+    def get_with_params(cls, session: Session, filter_list: list = None,
                         _sort: list = None, _fields: Type[BaseDto] = None, _group: list = None, **kwargs):
         """
         查询数据
@@ -123,7 +123,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def get_with_pagination(cls, session: Session, *, page: int = 1, limit: int = 10, **kwargs):
+    def get_with_pagination(cls, session: Session, page: int = 1, limit: int = 10, **kwargs):
         """
         分页查询
         :param session: 会话
@@ -138,7 +138,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def get_with_existed(cls, session: Session, *, filter_list: list = None, **kwargs):
+    def get_with_existed(cls, session: Session, filter_list: list = None, **kwargs):
         """
         判断数据是否存在
         :param session: 会话
@@ -167,7 +167,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def get_with_id(cls, session: Session, *, id: int):
+    def get_with_id(cls, session: Session, id: int):
         """
         根据主键id查询数据
         :param session: 会话
@@ -179,7 +179,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def update_by_id(cls, session: Session, *, model: Union[dict, BaseBody], user: dict=None, not_null = False, **kwargs):
+    def update_by_id(cls, session: Session, model: Union[dict, BaseBody], user: dict=None, not_null = False, **kwargs):
         """
         通过主键id更新数据
         :param session: 会话
@@ -218,7 +218,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def update_by_map(cls, session: Session, *, filter_list: list, user: dict=None, **kwargs):
+    def update_by_map(cls, session: Session, filter_list: list, user: dict=None, **kwargs):
         """
         批量更新数据
         :param session: 会话
@@ -239,7 +239,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def insert_by_model(cls, session: Session, *, model_obj: FunBaseModel):
+    def insert_by_model(cls, session: Session, model_obj: FunBaseModel):
         """
         :param session: 会话
         :param model_obj: 实例化的表
@@ -252,7 +252,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def delete_by_id(cls, session: Session, *, id: int, user: dict = None, **kwargs):
+    def delete_by_id(cls, session: Session, id: int, user: dict = None, **kwargs):
         """
         通过主键id删除数据
         :param session: 会话
@@ -275,7 +275,7 @@ class BaseCrud(object):
 
     @classmethod
     @connect
-    def get_with_count(cls, session: Session(), **kwargs):
+    def get_with_count(cls, session: Session, **kwargs):
         """
         统计数据
         :param session: 会话

@@ -275,7 +275,7 @@ class CaseDao(BaseCrud):
         :return:
         """
         filter_list = [DataFactoryCases.project_id == project_id]
-        cases = cls.update_by_map(session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
+        cases = cls.update_by_map(session = session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
         return [i.id for i in cases]
 
     @classmethod
@@ -353,11 +353,11 @@ class CaseParamsDao(BaseCrud):
                     DataFactoryCasesParams.params == body.params,
                     )
             ]
-            result = cls.get_with_existed(session, filter_list = filter_list)
+            result = cls.get_with_existed(session = session, filter_list = filter_list)
             if result:
                 raise BusinessException("该参数组合已存在，请重新录入！")
             cases_params = DataFactoryCasesParams(**body.dict(), out_id = out_id, user = user)
-            cls.insert_by_model(session, model_obj = cases_params)
+            cls.insert_by_model(session = session, model_obj = cases_params)
 
 
     @classmethod
@@ -373,14 +373,14 @@ class CaseParamsDao(BaseCrud):
                                                           DataFactoryCases.del_flag == 0).first()
             if not case:
                 raise BusinessException("造数场景不存在！！！")
-            param_result = cls.get_with_existed(session, id = body.id)
+            param_result = cls.get_with_existed(session = session, id = body.id)
             if not param_result: raise BusinessException("参数组合数据不存在！")
             # 根据名称查出数据
-            params_name = cls.get_with_first(session, name = body.name, cases_id = body.cases_id)
+            params_name = cls.get_with_first(session = session, name = body.name, cases_id = body.cases_id)
             # 如果有数据且主键id与请求参数id不相等
             if params_name is not None and params_name.id != body.id:
                 raise BusinessException("参数组合名称重复, 请重新录入！！！")
-            cls.update_by_id(session, model = body, user = user)
+            cls.update_by_id(session = session, model = body, user = user)
 
     @classmethod
     def deleta_cases_params(cls, id: int, user: dict):
@@ -395,7 +395,7 @@ class CaseParamsDao(BaseCrud):
                                                                         DataFactoryCasesParams.del_flag == 0).first()
             if param_result is None: raise BusinessException("参数组合数据不存在！")
 
-            cls.delete_by_id(session, id = id, user = user)
+            cls.delete_by_id(session = session, id = id, user = user)
 
     @classmethod
     def get_cases_params(cls, cases_id: int, page=1, limit=10):
@@ -415,7 +415,7 @@ class CaseParamsDao(BaseCrud):
         filter_list = [
             DataFactoryCasesParams.cases_id.in_(cases_id)
         ]
-        cls.update_by_map(session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
+        cls.update_by_map(session = session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
 
 
     @classmethod

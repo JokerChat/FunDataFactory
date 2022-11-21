@@ -35,11 +35,11 @@ class ProjectDao(BaseCrud):
                 raise BusinessException("用户不存在！！！")
             filter_list = [or_(DataFactoryProject.project_name == form.project_name,
                                DataFactoryProject.git_project == form.git_project)]
-            project = cls.get_with_existed(session, filter_list=filter_list)
+            project = cls.get_with_existed(session = session, filter_list=filter_list)
             if project:
                 raise BusinessException("项目名或者git项目名重复, 请重新录入！！！")
             _project = DataFactoryProject(form, user)
-            cls.insert_by_model(session, model_obj=_project)
+            cls.insert_by_model(session = session, model_obj=_project)
 
     @classmethod
     def update_project(cls, data: EditProject, user: dict) -> None:
@@ -74,7 +74,7 @@ class ProjectDao(BaseCrud):
         ProjectRoleDao.operation_permission(id, user)
         with Session() as session:
             from app.crud.case.CaseDao import CaseDao, CaseParamsDao
-            project = cls.delete_by_id(session, id = id, user = user)
+            project = cls.delete_by_id(session = session, id = id, user = user)
             cases_id_list = CaseDao.delete_project_case(session, project.id, user)
             CaseParamsDao.delete_all_params(session, cases_id_list, user)
             return project

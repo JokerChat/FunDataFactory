@@ -32,11 +32,11 @@ class ProjectRoleDao(BaseCrud):
                 raise BusinessException("用户不存在！！！")
             if user_query.is_valid:
                 raise BusinessException("对不起, 该账号已被冻结, 无法添加项目权限")
-            ant = cls.get_with_existed(session, user_id = form.user_id, project_id = form.project_id)
+            ant = cls.get_with_existed(session = session, user_id = form.user_id, project_id = form.project_id)
             if ant:
                 raise BusinessException("该用户项目权限已存在！！！")
             project_role = DataFactoryProjectRole(form, user)
-            cls.insert_by_model(session, model_obj = project_role)
+            cls.insert_by_model(session = session, model_obj = project_role)
 
 
 
@@ -119,7 +119,7 @@ class ProjectRoleDao(BaseCrud):
                 return
             else:
                 # 查询是否在项目配有权限
-                project_role = cls.get_with_first(session, user_id = user['id'], project_id = project_id)
+                project_role = cls.get_with_first(session = session, user_id = user['id'], project_id = project_id)
                 if project_role is None:
                     raise BusinessException(f"对不起，你没有{project.project_name}项目查看权限！！！")
 
@@ -136,7 +136,7 @@ class ProjectRoleDao(BaseCrud):
                 return
             else:
                 # 非超管 或者 非项目负责人
-                role_query = cls.get_with_first(session, user_id = user['id'], project_id = project_id)
+                role_query = cls.get_with_first(session = session, user_id = user['id'], project_id = project_id)
 
                 if role_query is None or role_query.project_role == PermissionEnum.members.value:
                     # 查询为空 或者 项目权限为组员
