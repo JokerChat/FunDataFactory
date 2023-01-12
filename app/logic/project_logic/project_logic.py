@@ -70,8 +70,8 @@ def delete_project_role_logic(id: int):
 
 def project_role_list_logic(project_id: int, page: int=1, limit: int=10, search=None):
     user = REQUEST_CONTEXT.get().user
-    roles, count = ProjectRoleDao.project_role_list(user, project_id, page, limit, search)
-    project_role_list = dict(count=count, lists=roles)
+    roles, total = ProjectRoleDao.project_role_list(user, project_id, page, limit, search)
+    project_role_list = dict(total=total, lists=roles)
     return project_role_list
 
 
