@@ -62,6 +62,15 @@ class Git(object):
         CmdUtils.cmd(command_str)
         logger.info("拉取项目代码结束")
 
+    @staticmethod
+    def project_install(project_path: str):
+        logger.info("更新依赖开始")
+        command_str = f"cd {project_path}\n" \
+                      f"pip install -r requirements.txt\n"
+        p = CmdUtils.cmd(command_str, timeout=30)
+        logger.info("更新依赖结束")
+        return p.stdout
+
 if __name__ == '__main__':
     url = 'git@gitee.com:JokerChat/img.git'
     branch = 'master'

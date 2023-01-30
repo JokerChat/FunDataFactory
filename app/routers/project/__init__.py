@@ -112,3 +112,15 @@ router.add_api_route("/gitSync",
                      methods=["post"],
                      name="git同步项目",
                      response_model=ResponseDto)
+
+router.add_api_route("/install",
+                     project_api.install_project,
+                     methods=["get"],
+                     name="更新项目依赖",
+                     response_model=ResponseDto)
+
+router.add_api_route("/install/get",
+                     project_api.get_project_txt,
+                     methods=["get"],
+                     name="获取项目依赖",
+                     response_model=ResponseDto)

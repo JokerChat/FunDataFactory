@@ -103,6 +103,27 @@ def init_project(project: DataFactoryProject):
     else:
         Git.git_clone_ssh(project.git_branch, project.git_url)
 
+def init_install_project(project: DataFactoryProject):
+    # 初始化项目时，顺便更新一下项目依赖
+    project_path, _ = project_install_common(project.git_project)
+    Git.project_install(project_path)
+
+def project_install_common(project_path: str):
+    path = os.path.join(FilePath.BASE_DIR, project_path)
+    if not os.path.isdir(project_path):
+        raise BusinessException("项目不存在, 请执行初始化项目！")
+    txt_path = os.path.join(project_path, 'requirements.txt')
+    if not os.path.exists(txt_path):
+        raise BusinessException(f"找不到对应的requirements.txt, 请git push 推送上传！")
+    return path, txt_path
+
+def install_project_logic(id: int):
+    user = REQUEST_CONTEXT.get().user
+    project = ProjectDao.project_detail(id, user)
+    path, _ = project_install_common(project.git_project)
+    msg = Git.project_install(path)
+    return msg
+
 
 def project_detail_logic(id: int):
     user = REQUEST_CONTEXT.get().user
@@ -123,6 +144,7 @@ def start_init_project_logic():
             all_task = []
             for project in projects:
                 all_task.append(ts.submit(init_project, project))
+                all_task.append(ts.submit(init_install_project, project))
             wait(all_task, return_when=ALL_COMPLETED)
 
 def check_gitee(request: Request):
@@ -191,3 +213,11 @@ def sync_project_list_logic():
     user = REQUEST_CONTEXT.get().user
     project = ProjectDao.get_user_all_projects(user)
     return project
+
+def get_project_txt_logic(id: int):
+    user = REQUEST_CONTEXT.get().user
+    project = ProjectDao.project_detail(id, user)
+    path, txt_path = project_install_common(project.git_project)
+    with open(txt_path, 'r', encoding='utf-8') as f:
+        txt_data = f.read()
+    return txt_data

@@ -17,7 +17,9 @@ class CmdUtils(object):
         :return:
         """
         try:
-            subprocess.run(cmd_str, shell=True, check=True, timeout=timeout)
+            p = subprocess.run(cmd_str, shell=True, check=True, timeout=timeout, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, encoding='utf-8')
+            return p
         except Exception as e:
             logger.error(f"{cmd_str} 命令执行失败, 错误信息: {str(e)}")
             raise BusinessException(f"命令执行失败!!! ")

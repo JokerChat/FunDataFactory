@@ -78,3 +78,11 @@ def sync_project_list():
 def sync_project_by_git(body: GitProject):
     msg = project_logic.sync_project_logic_by_git(body)
     return ResponseDto(msg = msg)
+
+def install_project(id: int):
+    msg = project_logic.install_project_logic(id)
+    return ResponseDto(data = msg, msg = "更新成功")
+
+def get_project_txt(id: int):
+    txT_data = project_logic.get_project_txt_logic(id)
+    return ResponseDto(data = txT_data, msg = "获取成功")
