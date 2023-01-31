@@ -66,8 +66,8 @@ class Git(object):
     def project_install(project_path: str):
         logger.info("更新依赖开始")
         command_str = f"cd {project_path}\n" \
-                      f"pip install -r requirements.txt\n"
-        p = CmdUtils.cmd(command_str, timeout=30)
+                      f"pip install -r requirements.txt --default-timeout=60 -i https://pypi.tuna.tsinghua.edu.cn/simple\n"
+        p = CmdUtils.cmd(command_str, timeout=60)
         logger.info("更新依赖结束")
         return p.stdout
 
