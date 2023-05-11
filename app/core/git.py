@@ -28,8 +28,8 @@ class Git(object):
         :return:
         """
         logger.info("http克隆开始")
-        command_str = f"cd {FilePath.BASE_DIR}\n" \
-                      f"git clone -b {git_branch} {Git.git_url(git_url, user, password)}\n"
+        command_str = f"cd {FilePath.BASE_DIR} && " \
+                      f"git clone -b {git_branch} {Git.git_url(git_url, user, password)}"
         CmdUtils.cmd(command_str)
         logger.info("http克隆结束")
 
@@ -42,8 +42,8 @@ class Git(object):
         :return:
         """
         logger.info("ssh克隆开始")
-        command_str = f"cd {FilePath.BASE_DIR}\n" \
-                      f'git clone -b {git_branch} {git_url} --config core.sshCommand="ssh -i {FilePath.RSA_PRI_KEY}"\n'
+        command_str = f"cd {FilePath.BASE_DIR} && " \
+                      f'git clone -b {git_branch} {git_url} --config core.sshCommand="ssh -i {FilePath.RSA_PRI_KEY}"'
         CmdUtils.cmd(command_str)
         logger.info("ssh克隆结束")
 
@@ -56,17 +56,17 @@ class Git(object):
         :return:
         """
         logger.info("拉取项目代码开始")
-        command_str = f"cd {project_path}\n" \
-                      f"git fetch --all\n" \
-                      f"git reset --hard origin/{git_branch}\n"
+        command_str = f"cd {project_path} && " \
+                      f"git fetch --all && " \
+                      f"git reset --hard origin/{git_branch}"
         CmdUtils.cmd(command_str)
         logger.info("拉取项目代码结束")
 
     @staticmethod
     def project_install(project_path: str):
         logger.info("更新依赖开始")
-        command_str = f"cd {project_path}\n" \
-                      f"pip install -r requirements.txt --default-timeout=60 -i https://pypi.tuna.tsinghua.edu.cn/simple\n"
+        command_str = f"cd {project_path} && " \
+                      f"pip install -r requirements.txt --default-timeout=60 -i https://pypi.tuna.tsinghua.edu.cn/simple"
         p = CmdUtils.cmd(command_str, timeout=60)
         logger.info("更新依赖结束")
         return p.stdout

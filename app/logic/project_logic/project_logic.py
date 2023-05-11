@@ -40,7 +40,7 @@ def delete_project_logic(id: int):
     import os
     project_path = os.path.join(FilePath.BASE_DIR, project.git_project)
     if os.path.isdir(project_path):
-        CmdUtils.cmd(f"rm -rf {project_path}\n")
+        CmdUtils.cmd(f"rm -rf {project_path}")
 
 
 def get_project_lists_logic(page: int=1, limit: int=10, search=None):

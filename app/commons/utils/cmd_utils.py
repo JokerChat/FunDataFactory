@@ -17,6 +17,7 @@ class CmdUtils(object):
         :return:
         """
         try:
+            logger.info(f"执行的命令: {cmd_str}")
             p = subprocess.run(cmd_str, shell=True, check=True, timeout=timeout, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, encoding='utf-8')
             return p
