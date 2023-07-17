@@ -41,6 +41,9 @@ class Git(object):
         :param git_url: 代码地址
         :return:
         """
+        import platform
+        if platform.platform() == 'Windows':
+            FilePath.RSA_PRI_KEY = FilePath.RSA_PRI_KEY.replace('\\', r'\\')
         logger.info("ssh克隆开始")
         command_str = f"cd {FilePath.BASE_DIR} && " \
                       f'git clone -b {git_branch} {git_url} --config core.sshCommand="ssh -i {FilePath.RSA_PRI_KEY}"'
