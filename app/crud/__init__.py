@@ -270,7 +270,7 @@ class BaseCrud(object):
             setattr(query_obj, 'update_id', user['id'])
             setattr(query_obj, 'update_name', user['username'])
         session.commit()
-        session.refresh(query_obj)
+        # session.refresh(query_obj)
         return query_obj
 
     @classmethod

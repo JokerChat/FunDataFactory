@@ -77,6 +77,7 @@ class ProjectDao(BaseCrud):
             project = cls.delete_by_id(session = session, id = id, user = user)
             cases_id_list = CaseDao.delete_project_case(session, project.id, user)
             CaseParamsDao.delete_all_params(session, cases_id_list, user)
+            session.refresh(project)
             return project
 
     @classmethod

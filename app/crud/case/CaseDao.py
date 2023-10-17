@@ -274,7 +274,7 @@ class CaseDao(BaseCrud):
         :param user: 用户数据
         :return:
         """
-        filter_list = [DataFactoryCases.project_id == project_id]
+        filter_list = [DataFactoryCases.project_id == project_id, DataFactoryCases.del_flag == DeleteEnum.no.value ]
         cases = cls.update_by_map(session = session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
         return [i.id for i in cases]
 
@@ -413,7 +413,7 @@ class CaseParamsDao(BaseCrud):
     @classmethod
     def delete_all_params(cls, session: Session, cases_id: list, user: dict):
         filter_list = [
-            DataFactoryCasesParams.cases_id.in_(cases_id)
+            DataFactoryCasesParams.cases_id.in_(cases_id), DataFactoryCasesParams.del_flag == DeleteEnum.no.value
         ]
         cls.update_by_map(session = session, filter_list = filter_list, user = user, del_flag = DeleteEnum.yes.value)
 
