@@ -34,4 +34,4 @@ jobs:
             docker images -q ${{ secrets.DOCKER_REPOSITORY }} | xargs -r docker rmi -f
             docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
             docker pull ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
-            docker run -itd -p 81:80 ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
+            docker run -itd -p 8080:8080 -v /server/logs:/fun/logs -v /server/keys:/fun/app/commons/settings/keys ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
