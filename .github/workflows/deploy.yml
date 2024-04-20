@@ -36,7 +36,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
             docker run -itd -p 8080:8080 -v /server/logs:/fun/logs -v /server/settings:/fun/app/commons/settings ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
       - name: 等待容器启动
-          run: sleep 10
+        run: sleep 10
       - name: 检测容器启动状态
           uses: appleboy/ssh-action@master
           with:
