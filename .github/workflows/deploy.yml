@@ -11,11 +11,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: 构建Docker镜像
-      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
+      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
     - name: 登陆镜像仓库
       run: docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
     - name: 推送镜像
-      run: docker push ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
+      run: docker push ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
   pull-docker:
     needs: [ build ]
     name: Deploy Container
@@ -33,5 +33,5 @@ jobs:
             docker ps -a | grep "${{ secrets.DOCKER_REPOSITORY }}" | awk '{print $1}' | xargs -r docker rm -f
             docker images -q ${{ secrets.DOCKER_REPOSITORY }} | xargs -r docker rmi -f
             docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
-            docker pull ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
-            docker run -itd -p 8080:8080 -v /server/logs:/fun/logs -v /server/keys:/fun/app/commons/settings/keys ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }}
+            docker pull ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
+            docker run -itd -p 8080:8080 -v /server/logs:/fun/logs -v /server/keys:/fun/app/commons/settings/keys ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
