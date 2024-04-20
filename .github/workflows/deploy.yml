@@ -35,3 +35,20 @@ jobs:
             docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
             docker pull ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
             docker run -itd -p 8080:8080 -v /server/logs:/fun/logs -v /server/settings:/fun/app/commons/settings ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
+      - name: 等待容器启动
+          run: sleep 10
+      - name: 检测容器启动状态
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.HOST_USERNAME }}
+            password: ${{ secrets.HOST_PASSWORD }}
+            port: ${{ secrets.HOST_PORT }}
+            script: |
+              container_id=$(docker ps -q --filter ancestor="${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}")
+              if [ -z "$container_id" ]; then
+                echo "容器启动失败！"
+                exit 1
+              else
+                echo "容器启动成功，ID: $container_id"
+              fi
