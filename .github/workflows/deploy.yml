@@ -38,17 +38,17 @@ jobs:
       - name: 等待容器启动
         run: sleep 10
       - name: 检测容器启动状态
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.HOST }}
-            username: ${{ secrets.HOST_USERNAME }}
-            password: ${{ secrets.HOST_PASSWORD }}
-            port: ${{ secrets.HOST_PORT }}
-            script: |
-              container_id=$(docker ps -q --filter ancestor="${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}")
-              if [ -z "$container_id" ]; then
-                echo "容器启动失败！"
-                exit 1
-              else
-                echo "容器启动成功，ID: $container_id"
-              fi
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.HOST_USERNAME }}
+          password: ${{ secrets.HOST_PASSWORD }}
+          port: ${{ secrets.HOST_PORT }}
+          script: |
+            container_id=$(docker ps -q --filter ancestor="${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}")
+            if [ -z "$container_id" ]; then
+              echo "容器启动失败！"
+              exit 1
+            else
+              echo "容器启动成功，ID: $container_id"
+            fi
