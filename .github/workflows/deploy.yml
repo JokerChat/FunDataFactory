@@ -16,7 +16,7 @@ jobs:
       run: docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
     - name: 推送镜像
       run: docker push ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
-  pull-docker:
+  deploy:
     needs: [ build ]
     name: Deploy Container
     runs-on: ubuntu-latest
