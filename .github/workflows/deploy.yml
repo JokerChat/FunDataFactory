@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.HOST_PASSWORD }}
           port: ${{ secrets.HOST_PORT }}
           script: |
-            container_id=$(docker ps -q --filter ancestor="${{ secrets.DOCKER_REPOSITORY }}:fail${{ github.run_id }}")
+            container_id=$(docker ps -q --filter ancestor="${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}")
             if [ -z "$container_id" ]; then
               echo "容器启动失败！"
               exit 1
