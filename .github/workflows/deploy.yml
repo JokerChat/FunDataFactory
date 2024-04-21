@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Image
     steps:
-    - uses: actions/checkout@v3
-    - name: 构建Docker镜像
-      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
-    - name: 登陆镜像仓库
-      run: docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
-    - name: 推送镜像
-      run: docker push ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
+      - uses: actions/checkout@v3
+      - name: 构建Docker镜像
+        run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
+      - name: 登陆镜像仓库
+        run: docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
+      - name: 推送镜像
+        run: docker push ${{ secrets.DOCKER_REPOSITORY }}:${{ github.run_id }}
   deploy:
     needs: [ build ]
     name: Deploy Container
