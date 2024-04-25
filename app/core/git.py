@@ -14,7 +14,7 @@ class Git(object):
     @staticmethod
     def git_url(url: str, user: str, pwd: str) -> str:
         git_url_list = url.split('/')
-        git_url_list[2] = f"{quote(user)}:{pwd}@" + git_url_list[2]
+        git_url_list[2] = f"{quote(user)}:{quote(pwd)}@" + git_url_list[2]
         return '/'.join(git_url_list)
 
     @staticmethod
